@@ -1,0 +1,37 @@
+{
+    "name": "alessandronuunes/filament-communicate",
+    "type": "library",
+    "license": "mit",
+    "autoload": {
+        "psr-4": {
+            "Alessandronuunes\\FilamentCommunicate\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "alessandronuunes",
+            "email": "alessandronuunes@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.2",
+        "filament/filament": "^3.0",
+        "spatie/laravel-package-tools": "^1.15.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^7.9",
+        "pestphp/pest": "^2.1"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Alessandronuunes\\FilamentCommunicate\\FilamentCommunicateServiceProvider"
+            ],
+            "aliases": {
+                "FilamentCommunicate": "Alessandronuunes\\FilamentCommunicate\\Facades\\FilamentCommunicate"
+            }
+        }
+    }
+}
