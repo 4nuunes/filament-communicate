@@ -178,22 +178,22 @@ class MessageReplyService
 
         // ✅ CORREÇÃO: Só marcar respostas onde o usuário é o DESTINATÁRIO
         $replies->where('current_recipient_id', $user->id) // ← Já filtra corretamente
-               ->where('status', MessageStatus::SENT) // ← Adicionar: só mensagens SENT
-               ->whereNull('read_at')
-               ->each(function ($reply) {
-                   $reply->update([
-                       'status' => MessageStatus::READ,
-                       'read_at' => now(),
-                   ]);
-               });
+            ->where('status', MessageStatus::SENT) // ← Adicionar: só mensagens SENT
+            ->whereNull('read_at')
+            ->each(function ($reply) {
+                $reply->update([
+                    'status' => MessageStatus::READ,
+                    'read_at' => now(),
+                ]);
+            });
 
         Log::info('Thread marked as read', [
             'root_message_id' => $rootMessage->id,
             'user_id' => $user->id,
             'replies_marked' => $replies->where('current_recipient_id', $user->id)
-                                       ->where('status', MessageStatus::SENT)
-                                       ->whereNull('read_at')
-                                       ->count(),
+                ->where('status', MessageStatus::SENT)
+                ->whereNull('read_at')
+                ->count(),
         ]);
     }
 

@@ -5,6 +5,18 @@ declare(strict_types=1);
 return [
 
     'locale' => env('APP_LOCALE', 'en'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Modelo de Usuário
+    |--------------------------------------------------------------------------
+    |
+    | Define qual modelo será usado para os relacionamentos com usuários.
+    | Por padrão, usa o modelo configurado no auth, mas pode ser customizado.
+    |
+    */
+    'user_model' => config('auth.providers.users.model'),
+
     /*
     |--------------------------------------------------------------------------
     | Configurações de Permissões de Mensagens

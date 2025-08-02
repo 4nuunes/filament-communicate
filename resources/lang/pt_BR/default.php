@@ -69,12 +69,16 @@ return [
                 'description' => [
                     'label' => 'Descrição',
                 ],
+                'approver_role' => [
+                    'label' => 'Função Aprovador',
+                ],
                 'requires_approval' => [
                     'label' => 'Requer Aprovação',
                 ],
                 'approver_role_id' => [
                     'label' => 'Papel Aprovador',
                 ],
+
                 'custom_fields' => [
                     'label' => 'Campos Customizados',
                     'key_label' => 'Campo',
@@ -182,6 +186,8 @@ return [
 
     // Ações
     'actions' => [
+
+        'create_message_type' => 'Novo Tipo',
         'create_message' => 'Nova Mensagem',
         'send_message' => 'Enviar Mensagem',
         'approve' => [

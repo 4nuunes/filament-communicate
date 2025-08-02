@@ -104,7 +104,7 @@ class MessageNotification extends Notification implements ShouldQueue
     {
         $baseUrl = config('app.url').'/admin/messages/'.$this->message->id;
 
-        return match($this->type) {
+        return match ($this->type) {
             'new_message' => [
                 'title' => __('filament-communicate::default.notifications.new_message.title'),
                 'body' => __('filament-communicate::default.notifications.new_message.body', [
@@ -221,7 +221,7 @@ class MessageNotification extends Notification implements ShouldQueue
     {
         $baseUrl = config('app.url').'/admin/messages/'.$this->message->id;
 
-        return match($this->type) {
+        return match ($this->type) {
             'new_message' => [
                 'title' => __('filament-communicate::default.notifications.new_message.title'),
                 'body' => __('filament-communicate::default.notifications.new_message.body', [

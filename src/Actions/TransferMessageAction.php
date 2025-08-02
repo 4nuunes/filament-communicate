@@ -6,7 +6,7 @@ namespace Alessandronuunes\FilamentCommunicate\Actions;
 
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
 use Alessandronuunes\FilamentCommunicate\Services\MessageService;
-use App\Models\User;
+use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -14,6 +14,8 @@ use Filament\Notifications\Notification;
 
 class TransferMessageAction extends Action
 {
+    use HasUserModel;
+
     protected $message = null;
 
     protected $redirectUrl = null;
@@ -58,9 +60,11 @@ class TransferMessageAction extends Action
             Select::make('new_recipient_id')
                 ->label(__('filament-communicate::default.forms.transfer.new_recipient_id.label'))
                 ->options(function () {
-                    return User::where('id', '!=', auth()->id())
-                              ->where('id', '!=', $this->message->sender_id)
-                              ->pluck('name', 'id');
+                    $userModel = $this->getUserModel();
+
+                    return $userModel::where('id', '!=', auth()->id())
+                        ->where('id', '!=', $this->message->sender_id)
+                        ->pluck('name', 'id');
                 })
                 ->required()
                 ->searchable(),
@@ -71,7 +75,8 @@ class TransferMessageAction extends Action
 
         $this->action(function (array $data) {
             try {
-                $newRecipient = User::find($data['new_recipient_id']);
+                $userModel = $this->getUserModel();
+                $newRecipient = $userModel::find($data['new_recipient_id']);
 
                 app(MessageService::class)->transferMessage(
                     $this->message,

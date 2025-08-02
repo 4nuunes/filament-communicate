@@ -1,10 +1,13 @@
 {
     "name": "alessandronuunes/filament-communicate",
+    "description": "A comprehensive communication plugin for Filament with messaging, notifications and file attachments",
     "type": "library",
     "license": "mit",
     "autoload": {
         "psr-4": {
-            "Alessandronuunes\\FilamentCommunicate\\": "src/"
+            "Alessandronuunes\\FilamentCommunicate\\": "src/",
+            "Alessandronuunes\\FilamentCommunicate\\Tests\\": "tests/",
+            "Alessandronuunes\\FilamentCommunicate\\Database\\Factories\\": "database/factories/"
         }
     },
     "authors": [
@@ -22,7 +25,16 @@
     "require-dev": {
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^7.9",
-        "pestphp/pest": "^2.1"
+        "pestphp/pest": "^2.1",
+        "orchestra/testbench": "^8.0",
+        "pestphp/pest-plugin-laravel": "^2.0",
+        "spatie/laravel-permission": "^6.0@dev",
+        "pestphp/pest-plugin-livewire": "2.x-dev"
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
     },
     "extra": {
         "laravel": {
@@ -32,6 +44,11 @@
             "aliases": {
                 "FilamentCommunicate": "Alessandronuunes\\FilamentCommunicate\\Facades\\FilamentCommunicate"
             }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }

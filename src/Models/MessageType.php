@@ -6,6 +6,7 @@ namespace Alessandronuunes\FilamentCommunicate\Models;
 
 use Alessandronuunes\FilamentCommunicate\Observers\MessageTypeObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,6 +16,7 @@ use Spatie\Permission\Models\Role;
 #[ObservedBy(MessageTypeObserver::class)]
 class MessageType extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
@@ -23,7 +25,6 @@ class MessageType extends Model
         'description',
         'requires_approval',
         'approver_role_id',
-        'custom_fields',
         'is_active',
         'sort_order',
     ];
@@ -31,11 +32,9 @@ class MessageType extends Model
     protected $casts = [
         'requires_approval' => 'boolean',
         'is_active' => 'boolean',
-        'custom_fields' => 'array',
         'sort_order' => 'integer',
     ];
 
-    // ✅ Relacionamentos confirmados
     public function approverRole(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'approver_role_id');

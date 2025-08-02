@@ -35,7 +35,7 @@ class MessageService
 
         if (! $message->messageType) {
             Log::warning(__('filament-communicate::default.logs.message_created_without_type'), [
-            'message_id' => $message->id,
+                'message_id' => $message->id,
             ]);
 
             return;
@@ -175,7 +175,7 @@ class MessageService
             DB::commit();
 
             Log::info(__('filament-communicate::default.logs.message_converted_to_approval'), [
-            'message_id' => $message->id,
+                'message_id' => $message->id,
             ]);
 
         } catch (Exception $e) {

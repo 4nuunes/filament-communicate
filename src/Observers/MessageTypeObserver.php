@@ -40,8 +40,8 @@ class MessageTypeObserver
     /**
      * Gera um slug único baseado no texto fornecido
      *
-     * @param string $text Texto base para gerar o slug
-     * @param int|null $ignoreId ID do registro a ser ignorado na verificação de unicidade
+     * @param  string  $text  Texto base para gerar o slug
+     * @param  int|null  $ignoreId  ID do registro a ser ignorado na verificação de unicidade
      * @return string Slug único gerado
      */
     private function generateUniqueSlug(string $text, ?int $ignoreId = null): string
@@ -62,8 +62,8 @@ class MessageTypeObserver
     /**
      * Verifica se um slug já existe na base de dados
      *
-     * @param string $slug Slug a ser verificado
-     * @param int|null $ignoreId ID do registro a ser ignorado
+     * @param  string  $slug  Slug a ser verificado
+     * @param  int|null  $ignoreId  ID do registro a ser ignorado
      * @return bool True se o slug já existe
      */
     private function slugExists(string $slug, ?int $ignoreId = null): bool

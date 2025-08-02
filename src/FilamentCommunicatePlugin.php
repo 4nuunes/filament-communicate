@@ -33,6 +33,5 @@ class FilamentCommunicatePlugin implements \Filament\Contracts\Plugin
 
     public function boot(Panel $panel): void
     {
-
     }
 }

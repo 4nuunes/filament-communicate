@@ -75,6 +75,9 @@ return [
                 'approver_role_id' => [
                     'label' => 'Approver Role',
                 ],
+                'approver_role' => [
+                    'label' => 'Role Approver',
+                ],
                 'custom_fields' => [
                     'label' => 'Custom Fields',
                     'key_label' => 'Field',
@@ -182,6 +185,7 @@ return [
 
     // Actions
     'actions' => [
+        'create_message_type' => 'New Message Type',
         'create_message' => 'New Message',
         'send_message' => 'Send Message',
         'approve' => [

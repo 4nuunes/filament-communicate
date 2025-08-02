@@ -7,8 +7,9 @@ namespace Alessandronuunes\FilamentCommunicate\Models;
 use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
 use Alessandronuunes\FilamentCommunicate\Observers\MessageObserver;
-use App\Models\User;
+use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,8 @@ use Log;
 #[ObservedBy(MessageObserver::class)]
 class Message extends Model
 {
+    use HasFactory;
+    use HasUserModel;
     use SoftDeletes;
 
     protected $fillable = [
@@ -59,17 +62,17 @@ class Message extends Model
 
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo($this->getUserModel(), 'sender_id');
     }
 
     public function recipient(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'recipient_id');
+        return $this->belongsTo($this->getUserModel(), 'recipient_id');
     }
 
     public function currentRecipient(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'current_recipient_id');
+        return $this->belongsTo($this->getUserModel(), 'current_recipient_id');
     }
 
     public function approvals(): HasMany
@@ -163,18 +166,18 @@ class Message extends Model
         // Buscar todas as mensagens do thread de uma vez com eager loading
         $allMessages = self::where(function ($query) use ($root) {
             $query->where('id', $root->id)
-                  ->orWhere('parent_id', $root->id);
+                ->orWhere('parent_id', $root->id);
         })
-        ->with([
-            'sender',
-            'recipient',
-            'latestApproval.approver',
-            'transfers.fromUser',
-            'transfers.toUser',
-            'transfers.transferredBy',
-        ])
-        ->orderBy('created_at')
-        ->get();
+            ->with([
+                'sender',
+                'recipient',
+                'latestApproval.approver',
+                'transfers.fromUser',
+                'transfers.toUser',
+                'transfers.transferredBy',
+            ])
+            ->orderBy('created_at')
+            ->get();
 
         return $allMessages;
     }
@@ -195,11 +198,11 @@ class Message extends Model
     /**
      * Scope para mensagens não lidas do usuário
      */
-    public function scopeUnreadForUser($query, User $user)
+    public function scopeUnreadForUser($query, $user)
     {
         return $query->where('recipient_id', $user->id)
-                    ->where('status', MessageStatus::SENT)
-                    ->whereNull('read_at');
+            ->where('status', MessageStatus::SENT)
+            ->whereNull('read_at');
     }
 
     /**
@@ -213,7 +216,7 @@ class Message extends Model
     /**
      * Verifica se pode ser marcada como lida
      */
-    public function canBeMarkedAsRead(User $user): bool
+    public function canBeMarkedAsRead($user): bool
     {
         return $this->recipient_id === $user->id &&
                $this->status === MessageStatus::SENT &&

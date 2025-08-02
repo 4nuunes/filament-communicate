@@ -39,12 +39,18 @@ class MessageObserver
         }
     }
 
+    public function updating(Message $message): void
+    {
+        //
+    }
+
     /**
      * Handle the Message "updated" event.
      */
     public function updated(Message $message): void
     {
         //
+
     }
 
     /**

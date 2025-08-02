@@ -12,7 +12,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Spatie\Permission\Models\Role;
 
 class MessageTypeResource extends Resource
@@ -65,59 +64,37 @@ class MessageTypeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make(__('filament-communicate::default.forms.message_type.sections.basic_info'))
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label(__('filament-communicate::default.forms.message_type.fields.name.label'))
-                            ->required()
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(255)
-                            ->live(onBlur: true),
-
-                        Forms\Components\Textarea::make('description')
-                            ->label(__('filament-communicate::default.forms.message_type.fields.description.label'))
-                            ->rows(3)
-                            ->columnSpanFull(),
-                    ])
-                    ->columns(2),
-
-                Forms\Components\Section::make(__('filament-communicate::default.forms.message_type.sections.approval_settings'))
-                    ->schema([
-                        Forms\Components\Toggle::make('requires_approval')
-                            ->label(__('filament-communicate::default.forms.message_type.fields.requires_approval.label'))
-                            ->default(false)
-                            ->live(),
-
-                        Forms\Components\Select::make('approver_role_id')
-                            ->label(__('filament-communicate::default.forms.message_type.fields.approver_role.label'))
-                            ->options(Role::pluck('name', 'id'))
-                            ->searchable()
-                            ->preload()
-                            ->visible(fn (Forms\Get $get): bool => $get('requires_approval')),
-                    ])
-                    ->columns(2),
-
-                Forms\Components\Section::make(__('filament-communicate::default.forms.message_type.sections.advanced_settings'))
-                    ->schema([
-                        Forms\Components\KeyValue::make('custom_fields')
-                            ->label(__('filament-communicate::default.forms.message_type.fields.custom_fields.label'))
-                            ->keyLabel(__('filament-communicate::default.forms.message_type.fields.custom_fields.key_label'))
-                            ->valueLabel(__('filament-communicate::default.forms.message_type.fields.custom_fields.value_label'))
-                            ->addActionLabel(__('filament-communicate::default.forms.message_type.fields.custom_fields.add_action_label'))
-                            ->columnSpanFull(),
-
-                        Forms\Components\Toggle::make('is_active')
-                            ->label(__('filament-communicate::default.forms.message_type.fields.is_active.label'))
-                            ->default(true),
-
-                        Forms\Components\TextInput::make('sort_order')
-                            ->label(__('filament-communicate::default.forms.message_type.fields.sort_order.label'))
-                            ->numeric()
-                            ->default(0)
-                            ->minValue(0),
-                    ])
-                    ->columns(2)
-                    ->collapsible(),
+                Forms\Components\TextInput::make('name')
+                    ->label(__('filament-communicate::default.forms.message_type.fields.name.label'))
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->columnSpanFull()
+                    ->maxLength(255)
+                    ->live(onBlur: true),
+                Forms\Components\Textarea::make('description')
+                    ->label(__('filament-communicate::default.forms.message_type.fields.description.label'))
+                    ->rows(3)
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('sort_order')
+                    ->label(__('filament-communicate::default.forms.message_type.fields.sort_order.label'))
+                    ->numeric()
+                    ->default(0)
+                    ->columnSpanFull()
+                    ->minValue(0),
+                Forms\Components\Toggle::make('is_active')
+                    ->label(__('filament-communicate::default.forms.message_type.fields.is_active.label'))
+                    ->default(true),
+                Forms\Components\Toggle::make('requires_approval')
+                    ->label(__('filament-communicate::default.forms.message_type.fields.requires_approval.label'))
+                    ->default(false)
+                    ->live(),
+                Forms\Components\Select::make('approver_role_id')
+                    ->label(__('filament-communicate::default.forms.message_type.fields.approver_role.label'))
+                    ->options(Role::pluck('name', 'id'))
+                    ->columnSpanFull()
+                    ->searchable()
+                    ->preload()
+                    ->visible(fn (Forms\Get $get): bool => $get('requires_approval') ?? false),
             ]);
     }
 
@@ -136,7 +113,7 @@ class MessageTypeResource extends Resource
                 Tables\Columns\TextColumn::make('approverRole.name')
                     ->label(__('filament-communicate::default.tables.columns.approver_role'))
                     ->placeholder(__('filament-communicate::default.tables.placeholders.no_approver')),
-                  Tables\Columns\IconColumn::make('requires_approval')
+                Tables\Columns\IconColumn::make('requires_approval')
                     ->label(__('filament-communicate::default.tables.columns.requires_approval'))
                     ->boolean(),
                 Tables\Columns\TextColumn::make('messages_count')
@@ -187,10 +164,7 @@ class MessageTypeResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+        return parent::getEloquentQuery();
     }
 
     public static function getRelations(): array
@@ -204,8 +178,8 @@ class MessageTypeResource extends Resource
     {
         return [
             'index' => Pages\ListMessageTypes::route('/'),
-            'create' => Pages\CreateMessageType::route('/create'),
-            'edit' => Pages\EditMessageType::route('/{record}/edit'),
+            // 'create' => Pages\CreateMessageType::route('/create'),
+            // 'edit' => Pages\EditMessageType::route('/{record}/edit'),
         ];
     }
 }

@@ -22,7 +22,7 @@ class ViewMessage extends ViewRecord
 {
     protected static string $resource = MessageResource::class;
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         parent::mount($record);
 
@@ -41,7 +41,7 @@ class ViewMessage extends ViewRecord
         }
     }
 
-    public function getTitle(): string | Htmlable
+    public function getTitle(): string|Htmlable
     {
         return $this->record->subject;
     }

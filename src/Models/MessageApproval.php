@@ -5,25 +5,27 @@ declare(strict_types=1);
 namespace Alessandronuunes\FilamentCommunicate\Models;
 
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
-use App\Models\User;
+use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MessageApproval extends Model
 {
+    use HasFactory;
+    use HasUserModel;
+
     protected $fillable = [
         'message_id',
         'approver_id',
         'action',
         'reason',
         'metadata',
-        // Removido 'approved_at'
     ];
 
     protected $casts = [
         'action' => MessageStatus::class,
         'metadata' => 'array',
-        // Removido 'approved_at' => 'datetime'
     ];
 
     // Relacionamentos
@@ -34,7 +36,7 @@ class MessageApproval extends Model
 
     public function approver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approver_id');
+        return $this->belongsTo($this->getUserModel(), 'approver_id');
     }
 
     /**

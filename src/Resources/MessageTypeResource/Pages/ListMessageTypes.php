@@ -16,7 +16,7 @@ class ListMessageTypes extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label(__('filament-communicate::default.actions.create_message_type.label')),
+                ->label(__('filament-communicate::default.actions.create_message_type')),
         ];
     }
 }

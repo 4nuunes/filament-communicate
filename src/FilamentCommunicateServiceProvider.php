@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alessandronuunes\FilamentCommunicate;
 
+use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -25,6 +26,14 @@ class FilamentCommunicateServiceProvider extends PackageServiceProvider
                 'create_messages_table',
             ])
             ->hasViews();
+    }
+
+    public function register(): void
+    {
+        parent::register();
+
+        // Registrar o service provider do blade-capture-directive
+        $this->app->register(BladeCaptureDirectiveServiceProvider::class);
     }
 
     public function boot(): void

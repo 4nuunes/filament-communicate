@@ -13,7 +13,7 @@ class EditMessage extends EditRecord
 {
     protected static string $resource = MessageResource::class;
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         parent::mount($record);
 
@@ -26,6 +26,13 @@ class EditMessage extends EditRecord
         if ($this->record->sender_id !== auth()->id()) {
             abort(403, 'Você não tem permissão para editar esta mensagem.');
         }
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['status'] = $data['save_as_draft'] ? MessageStatus::DRAFT : MessageStatus::SENT;
+
+        return $data;
     }
 
     protected function getHeaderActions(): array

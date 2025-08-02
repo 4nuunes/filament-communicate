@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Alessandronuunes\FilamentCommunicate\Enums;
 
 use Alessandronuunes\FilamentCommunicate\Models\Message;
-use App\Models\User;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
+use Illuminate\Contracts\Auth\Authenticatable as User;
 
 enum MessageStatus: string implements HasColor, HasLabel
 {

@@ -10,17 +10,19 @@ use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
 use Alessandronuunes\FilamentCommunicate\Models\Message;
 use Alessandronuunes\FilamentCommunicate\Models\MessageApproval;
 use Alessandronuunes\FilamentCommunicate\Models\MessageType;
-use App\Models\User;
+use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class MessageApprovalService
 {
+    use HasUserModel;
+
     /**
      * Aprova uma mensagem
      */
-    public function approveMessage(Message $message, User $approver, ?string $reason = null): void
+    public function approveMessage(Message $message, $approver, ?string $reason = null): void
     {
         try {
             DB::beginTransaction();
@@ -76,7 +78,7 @@ class MessageApprovalService
     /**
      * Rejeita uma mensagem
      */
-    public function rejectMessage(Message $message, User $approver, string $reason): void
+    public function rejectMessage(Message $message, $approver, string $reason): void
     {
         try {
             DB::beginTransaction();
@@ -163,7 +165,7 @@ class MessageApprovalService
     /**
      * Busca ou cria registro de aprovação
      */
-    private function findOrCreateApproval(Message $message, User $approver): MessageApproval
+    private function findOrCreateApproval(Message $message, $approver): MessageApproval
     {
         $approval = MessageApproval::where('message_id', $message->id)
             ->where('approver_id', $approver->id)
@@ -183,49 +185,54 @@ class MessageApprovalService
     /**
      * Busca aprovador para o tipo de mensagem
      */
-    private function getApproverForMessageType(MessageType $messageType): ?User
+    private function getApproverForMessageType(MessageType $messageType)
     {
         if (! $messageType->requires_approval) {
             return null;
         }
 
         if ($messageType->approverRole) {
-            return User::role($messageType->approverRole->name)->first();
+            $userModel = $this->getUserModel();
+
+            return $userModel::role($messageType->approverRole->name)->first();
         }
 
         // Fallback para supervisor
         $supervisorRoles = config('filament-communicate.supervisor_roles', ['supervisor']);
+        $userModel = $this->getUserModel();
         foreach ($supervisorRoles as $role) {
-            $user = User::role($role)->first();
+            $user = $userModel::role($role)->first();
             if ($user) {
                 return $user;
             }
         }
 
         // Último fallback para super_admin
-        return User::role('super_admin')->first();
+        return $userModel::role('super_admin')->first();
     }
 
     /**
      * Busca aprovador alternativo
      */
-    private function getAlternativeApprover(MessageType $messageType, int $senderId): ?User
+    private function getAlternativeApprover(MessageType $messageType, int $senderId)
     {
+        $userModel = $this->getUserModel();
+
         if ($messageType->approverRole) {
-            return User::role($messageType->approverRole->name)
+            return $userModel::role($messageType->approverRole->name)
                 ->where('id', '!=', $senderId)
                 ->first();
         }
 
         $supervisorRoles = config('filament-communicate.supervisor_roles', ['supervisor']);
         foreach ($supervisorRoles as $role) {
-            $user = User::role($role)->where('id', '!=', $senderId)->first();
+            $user = $userModel::role($role)->where('id', '!=', $senderId)->first();
             if ($user) {
                 return $user;
             }
         }
 
-        return User::role('super_admin')
+        return $userModel::role('super_admin')
             ->where('id', '!=', $senderId)
             ->first();
     }

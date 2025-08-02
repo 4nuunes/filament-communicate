@@ -6,15 +6,19 @@ namespace Alessandronuunes\FilamentCommunicate\Helpers;
 
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
 use Alessandronuunes\FilamentCommunicate\Models\Message;
-use App\Models\User;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class MessagePermissions
 {
     /**
      * Verifica se o usuário pode visualizar a mensagem
      */
-    public static function canView(User $user, Message $message): bool
+    public static function canView(?Authenticatable $user, Message $message): bool
     {
+        if (! $user) {
+            return false;
+        }
+
         // Super admins podem ver tudo
         if (self::isSuperAdmin($user)) {
             return true;
@@ -32,8 +36,12 @@ class MessagePermissions
     /**
      * Verifica se o usuário pode aprovar mensagens
      */
-    public static function canApprove(User $user, Message $message): bool
+    public static function canApprove(?Authenticatable $user, Message $message): bool
     {
+        if (! $user) {
+            return false;
+        }
+
         // Super admins podem aprovar tudo
         if (self::isSuperAdmin($user)) {
             return true;
@@ -62,8 +70,12 @@ class MessagePermissions
     /**
      * Verifica se é super admin
      */
-    public static function isSuperAdmin(User $user): bool
+    public static function isSuperAdmin(?Authenticatable $user): bool
     {
+        if (! $user) {
+            return false;
+        }
+
         $superAdminRoles = config('filament-communicate.super_admin_roles', []);
 
         return $user->hasAnyRole($superAdminRoles);
@@ -72,8 +84,12 @@ class MessagePermissions
     /**
      * Verifica se é supervisor
      */
-    public static function isSupervisor(User $user): bool
+    public static function isSupervisor(?Authenticatable $user): bool
     {
+        if (! $user) {
+            return false;
+        }
+
         $supervisorRoles = config('filament-communicate.supervisor_roles', []);
 
         return $user->hasAnyRole($supervisorRoles);
@@ -82,7 +98,7 @@ class MessagePermissions
     /**
      * Verifica se o supervisor pode ver a mensagem
      */
-    private static function canSupervisorView(User $user, Message $message): bool
+    private static function canSupervisorView(Authenticatable $user, Message $message): bool
     {
         $config = config('filament-communicate.supervisor_visibility');
 
@@ -105,7 +121,7 @@ class MessagePermissions
     /**
      * Verifica se o usuário é participante da mensagem
      */
-    private static function isMessageParticipant(User $user, Message $message): bool
+    private static function isMessageParticipant(Authenticatable $user, Message $message): bool
     {
         return $message->sender_id === $user->id ||
                $message->recipient_id === $user->id ||
@@ -115,8 +131,12 @@ class MessagePermissions
     /**
      * Aplica filtros de query baseado nas permissões do usuário
      */
-    public static function applyQueryFilters($query, User $user)
+    public static function applyQueryFilters($query, ?Authenticatable $user)
     {
+        if (! $user) {
+            return $query->whereRaw('1 = 0'); // Retorna query vazia se não há usuário
+        }
+
         // Super admins veem tudo
         if (self::isSuperAdmin($user)) {
             return $query;
@@ -128,22 +148,22 @@ class MessagePermissions
                 // Mensagens pendentes (exceto as próprias)
                 $q->where(function ($subQ) use ($user) {
                     $subQ->where('status', MessageStatus::PENDING)
-                         ->where('sender_id', '!=', $user->id);
+                        ->where('sender_id', '!=', $user->id);
                 })
                 // OU suas próprias mensagens enviadas
-                ->orWhere('sender_id', $user->id)
+                    ->orWhere('sender_id', $user->id)
                 // OU mensagens recebidas com status específicos
-                ->orWhere(function ($subQ) use ($user) {
-                    $subQ->where(function ($recipientQ) use ($user) {
-                        $recipientQ->where('recipient_id', $user->id)
-                                  ->orWhere('current_recipient_id', $user->id);
-                    })
-                    ->whereIn('status', [
-                        MessageStatus::READ->value,
-                        MessageStatus::APPROVED->value,
-                        MessageStatus::SENT->value,
-                    ]);
-                });
+                    ->orWhere(function ($subQ) use ($user) {
+                        $subQ->where(function ($recipientQ) use ($user) {
+                            $recipientQ->where('recipient_id', $user->id)
+                                ->orWhere('current_recipient_id', $user->id);
+                        })
+                            ->whereIn('status', [
+                                MessageStatus::READ->value,
+                                MessageStatus::APPROVED->value,
+                                MessageStatus::SENT->value,
+                            ]);
+                    });
             });
         }
 
@@ -152,17 +172,17 @@ class MessagePermissions
             // Mensagens enviadas pelo usuário (qualquer status)
             $q->where('sender_id', $user->id)
             // OU mensagens recebidas com status específicos
-            ->orWhere(function ($subQ) use ($user) {
-                $subQ->where(function ($recipientQ) use ($user) {
-                    $recipientQ->where('recipient_id', $user->id)
-                              ->orWhere('current_recipient_id', $user->id);
-                })
-                ->whereIn('status', [
-                    MessageStatus::READ->value,
-                    MessageStatus::APPROVED->value,
-                    MessageStatus::SENT->value,
-                ]);
-            });
+                ->orWhere(function ($subQ) use ($user) {
+                    $subQ->where(function ($recipientQ) use ($user) {
+                        $recipientQ->where('recipient_id', $user->id)
+                            ->orWhere('current_recipient_id', $user->id);
+                    })
+                        ->whereIn('status', [
+                            MessageStatus::READ->value,
+                            MessageStatus::APPROVED->value,
+                            MessageStatus::SENT->value,
+                        ]);
+                });
         });
     }
 }

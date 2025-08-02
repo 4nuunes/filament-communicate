@@ -39,20 +39,20 @@ class ListMessages extends ListRecords
         $tabs['received'] = Tab::make(__('filament-communicate::default.tabs.received'))
             ->modifyQueryUsing(
                 fn (Builder $query) => $query->where('current_recipient_id', auth()->id())
-                      ->whereIn('status', [
-                          MessageStatus::READ->value,
-                          MessageStatus::APPROVED->value,
-                          MessageStatus::SENT->value,
-                      ])
+                    ->whereIn('status', [
+                        MessageStatus::READ->value,
+                        MessageStatus::APPROVED->value,
+                        MessageStatus::SENT->value,
+                    ])
             )
             ->badge(
                 fn () => $this->getModel()::where('current_recipient_id', auth()->id())
-                                ->whereIn('status', [
-                                    MessageStatus::READ->value,
-                                    MessageStatus::APPROVED->value,
-                                    MessageStatus::SENT->value,
-                                ])
-                                ->count()
+                    ->whereIn('status', [
+                        MessageStatus::READ->value,
+                        MessageStatus::APPROVED->value,
+                        MessageStatus::SENT->value,
+                    ])
+                    ->count()
             );
 
         $tabs['sent'] = Tab::make(__('filament-communicate::default.tabs.sent'))
@@ -62,20 +62,20 @@ class ListMessages extends ListRecords
         $tabs['unread'] = Tab::make(__('filament-communicate::default.tabs.unread'))
             ->modifyQueryUsing(
                 fn (Builder $query) => $query->where('recipient_id', auth()->id())
-                      ->whereNull('read_at')
-                      ->whereIn('status', [
-                          MessageStatus::APPROVED->value,
-                          MessageStatus::SENT->value,
-                      ])
+                    ->whereNull('read_at')
+                    ->whereIn('status', [
+                        MessageStatus::APPROVED->value,
+                        MessageStatus::SENT->value,
+                    ])
             )
             ->badge(
                 fn () => $this->getModel()::where('recipient_id', auth()->id())
-                                ->whereNull('read_at')
-                                ->whereIn('status', [
-                                    MessageStatus::APPROVED->value,
-                                    MessageStatus::SENT->value,
-                                ])
-                                ->count()
+                    ->whereNull('read_at')
+                    ->whereIn('status', [
+                        MessageStatus::APPROVED->value,
+                        MessageStatus::SENT->value,
+                    ])
+                    ->count()
             );
 
         // Tab "Aguardando Aprovação" apenas para supervisores
@@ -83,12 +83,12 @@ class ListMessages extends ListRecords
             $tabs['pending_approval'] = Tab::make(__('filament-communicate::default.tabs.pending_approval'))
                 ->modifyQueryUsing(
                     fn (Builder $query) => $query->where('status', MessageStatus::PENDING)
-                          ->where('sender_id', '!=', auth()->id())
+                        ->where('sender_id', '!=', auth()->id())
                 )
                 ->badge(
                     fn () => $this->getModel()::where('status', MessageStatus::PENDING)
-                                    ->where('sender_id', '!=', auth()->id())
-                                    ->count()
+                        ->where('sender_id', '!=', auth()->id())
+                        ->count()
                 );
         }
 

@@ -10,7 +10,7 @@ use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
 use Alessandronuunes\FilamentCommunicate\Models\Message;
 use Alessandronuunes\FilamentCommunicate\Resources\MessageResource\Pages;
 use Alessandronuunes\FilamentCommunicate\Services\MessageService;
-use App\Models\User;
+use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -18,11 +18,12 @@ use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
 
 class MessageResource extends Resource
 {
+    use HasUserModel;
+
     protected static ?string $model = Message::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
@@ -72,90 +73,95 @@ class MessageResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make(__('filament-communicate::default.forms.message.sections.content'))
-                        ->columns(4)
-                        ->schema([
-                            Forms\Components\Select::make('recipient_id')
-                                ->label(__('filament-communicate::default.forms.message.fields.recipient_id.label'))
-                                ->relationship('recipient', 'name', function (Builder $query) {
-                                    $query->where('id', '!=', Auth::id());
-                                })
-                                ->required()
-                                ->searchable()
-                                ->preload()
-                                ->columnSpanFull()
-                                ->getOptionLabelFromRecordUsing(fn (User $record): string => "{$record->name} ({$record->email})")
-                                ->rules([
-                                    function () {
-                                        return function (string $attribute, $value, \Closure $fail) {
-                                            if ($value == Auth::id()) {
-                                                $fail(__('filament-communicate::default.validation.cannot_send_to_self'));
-                                            }
-                                        };
-                                    },
-                                ]),
-                            Forms\Components\TextInput::make('subject')
-                                ->label(__('filament-communicate::default.forms.message.fields.subject.label'))
-                                ->required()
-                                ->maxLength(255)
-                                ->columnSpanFull(),
+                    ->columns(4)
+                    ->schema([
+                        Forms\Components\Select::make('recipient_id')
+                            ->label(__('filament-communicate::default.forms.message.fields.recipient_id.label'))
+                            ->relationship('recipient', 'name', function (Builder $query) {
+                                $query->where('id', '!=', Auth::id());
+                            })
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->columnSpanFull()
+                            ->getOptionLabelFromRecordUsing(fn ($record): string => "{$record->name} ({$record->email})")
+                            ->rules([
+                                function () {
+                                    return function (string $attribute, $value, \Closure $fail) {
+                                        if ($value == Auth::id()) {
+                                            $fail(__('filament-communicate::default.validation.cannot_send_to_self'));
+                                        }
+                                    };
+                                },
+                            ]),
+                        Forms\Components\TextInput::make('subject')
+                            ->label(__('filament-communicate::default.forms.message.fields.subject.label'))
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
 
-                            Forms\Components\RichEditor::make('content')
-                                ->label(__('filament-communicate::default.forms.message.fields.content.label'))
-                                ->required()
-                                ->columnSpanFull()
-                                ->toolbarButtons([
-                                    'bold',
-                                    'italic',
-                                    'underline',
-                                    'bulletList',
-                                    'orderedList',
-                                    'link',
-                                    'undo',
-                                    'redo',
-                                ]),
+                        Forms\Components\RichEditor::make('content')
+                            ->label(__('filament-communicate::default.forms.message.fields.content.label'))
+                            ->required()
+                            ->columnSpanFull()
+                            ->toolbarButtons([
+                                'bold',
+                                'italic',
+                                'underline',
+                                'bulletList',
+                                'orderedList',
+                                'link',
+                                'undo',
+                                'redo',
+                            ]),
 
-                            Forms\Components\FileUpload::make('attachments')
-                                        ->label(__('filament-communicate::default.forms.message.fields.attachments.label'))
-                                        ->multiple()
-                                        ->maxFiles(config('filament-communicate.storage.max_files', 5))
-                                        ->maxSize(config('filament-communicate.storage.max_file_size', 10240))
-                                        ->acceptedFileTypes([
-                                            'application/pdf',
-                                            'image/*',
-                                            'application/msword',
-                                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                        ])
-                                        ->columnSpanFull(),
-                            Forms\Components\Select::make('message_type_id')
-                                ->label(__('filament-communicate::default.forms.message.fields.message_type_id.label'))
-                                ->relationship('messageType', 'name')
-                                ->required()
-                                ->searchable()
+                        Forms\Components\FileUpload::make('attachments')
+                            ->label(__('filament-communicate::default.forms.message.fields.attachments.label'))
+                            ->multiple()
+                            ->maxFiles(config('filament-communicate.storage.max_files', 5))
+                            ->maxSize(config('filament-communicate.storage.max_file_size', 10240))
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'image/*',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            ])
+                            ->columnSpanFull(),
+                        Forms\Components\Select::make('message_type_id')
+                            ->label(__('filament-communicate::default.forms.message.fields.message_type_id.label'))
+                            ->relationship('messageType', 'name')
+                            ->required()
+                            ->searchable()
 
-                                ->columnSpan(2)
-                                ->preload(),
+                            ->columnSpan(2)
+                            ->preload(),
 
-                            Forms\Components\Select::make('priority')
-                                ->label(__('filament-communicate::default.forms.message.fields.priority.label'))
-                                ->options(MessagePriority::class)
-                                ->default(MessagePriority::NORMAL)
+                        Forms\Components\Select::make('priority')
+                            ->label(__('filament-communicate::default.forms.message.fields.priority.label'))
+                            ->options(MessagePriority::class)
+                            ->default(MessagePriority::NORMAL)
 
-                                ->columnSpan(2)
-                                ->required(),
+                            ->columnSpan(2)
+                            ->required(),
 
-                            Forms\Components\Toggle::make('save_as_draft')
-                                        ->label(__('filament-communicate::default.forms.message.fields.save_as_draft.label'))
-                                        ->helperText(__('filament-communicate::default.forms.message.fields.save_as_draft.helper_text'))
-                                        ->default(false)
-                                        ->columnSpanFull()
-                                        ->live(),
-                        ]),
+                        Forms\Components\Toggle::make('save_as_draft')
+                            ->label(__('filament-communicate::default.forms.message.fields.save_as_draft.label'))
+                            ->helperText(__('filament-communicate::default.forms.message.fields.save_as_draft.helper_text'))
+                            ->default(false)
+                            ->columnSpanFull()
+                            ->afterStateHydrated(function (Forms\Components\Toggle $component, $get) {
+                                if ($get('status') === MessageStatus::DRAFT->value) {
+                                    $component->state(true);
+                                }
+                            })->live(),
+                    ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->emptyStateActions([])
             ->columns([
                 Tables\Columns\TextColumn::make('subject')
                     ->label(__('filament-communicate::default.tables.columns.subject'))
@@ -318,92 +324,95 @@ class MessageResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
 
-                Tables\Actions\ViewAction::make(),
+                    Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()
-                    ->visible(fn ($record) => $record->status === MessageStatus::DRAFT),
-                Tables\Actions\Action::make('approve')
-                    ->label(__('filament-communicate::default.actions.approve.label'))
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(
-                        fn ($record) => $record->status === MessageStatus::PENDING &&
-                        $record->sender_id !== Auth::id() // Não pode aprovar própria mensagem
-                    )
-                    ->requiresConfirmation()
-                    ->form([
-                        Forms\Components\Textarea::make('reason')
-                            ->label(__('filament-communicate::default.forms.approval.reason.label'))
-                            ->maxLength(500),
-                    ])
-                    ->action(function (Message $record, array $data) {
-                        app(MessageService::class)
-                            ->approveMessage($record, Auth::user(), $data['reason'] ?? null);
-                    }),
+                        ->visible(fn ($record) => $record->status === MessageStatus::DRAFT),
+                    Tables\Actions\Action::make('approve')
+                        ->label(__('filament-communicate::default.actions.approve.label'))
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->visible(
+                            fn ($record) => $record->status === MessageStatus::PENDING &&
+                            $record->sender_id !== Auth::id() // Não pode aprovar própria mensagem
+                        )
+                        ->requiresConfirmation()
+                        ->form([
+                            Forms\Components\Textarea::make('reason')
+                                ->label(__('filament-communicate::default.forms.approval.reason.label'))
+                                ->maxLength(500),
+                        ])
+                        ->action(function (Message $record, array $data) {
+                            app(MessageService::class)
+                                ->approveMessage($record, Auth::user(), $data['reason'] ?? null);
+                        }),
 
-                Tables\Actions\Action::make('reject')
-                    ->label(__('filament-communicate::default.actions.reject.label'))
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->visible(
-                        fn ($record) => $record->status === MessageStatus::PENDING &&
-                        $record->sender_id !== Auth::id()
-                    )
-                    ->requiresConfirmation()
-                    ->form([
-                        Forms\Components\Textarea::make('reason')
-                            ->label(__('filament-communicate::default.forms.rejection.reason.label'))
-                            ->required()
-                            ->maxLength(500),
-                    ])
-                    ->action(function (Message $record, array $data) {
-                        app(MessageService::class)
-                            ->rejectMessage($record, Auth::user(), $data['reason']);
-                    }),
+                    Tables\Actions\Action::make('reject')
+                        ->label(__('filament-communicate::default.actions.reject.label'))
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->visible(
+                            fn ($record) => $record->status === MessageStatus::PENDING &&
+                            $record->sender_id !== Auth::id()
+                        )
+                        ->requiresConfirmation()
+                        ->form([
+                            Forms\Components\Textarea::make('reason')
+                                ->label(__('filament-communicate::default.forms.rejection.reason.label'))
+                                ->required()
+                                ->maxLength(500),
+                        ])
+                        ->action(function (Message $record, array $data) {
+                            app(MessageService::class)
+                                ->rejectMessage($record, Auth::user(), $data['reason']);
+                        }),
 
-                Tables\Actions\Action::make('transfer')
-                    ->label(__('filament-communicate::default.actions.transfer.label'))
-                    ->icon('heroicon-o-arrow-right-circle')
-                    ->color('info')
-                    ->visible(function ($record) {
-                        // Só pode transferir se:
-                        // 1. Status é SENT ou READ
-                        // 2. Usuário atual é o destinatário
-                        // 3. Mensagem NÃO possui respostas
-                        return in_array($record->status, [MessageStatus::SENT, MessageStatus::READ]) &&
-                               $record->recipient_id === Auth::id() &&
-                               $record->replies()->count() === 0;
-                    })
-                    ->form([
-                        Forms\Components\Select::make('new_recipient_id')
-                            ->label(__('filament-communicate::default.forms.transfer.new_recipient_id.label'))
-                            ->relationship('recipient', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
-                        Forms\Components\Textarea::make('reason')
-                            ->label(__('filament-communicate::default.forms.transfer.reason.label'))
-                            ->maxLength(500),
-                    ])
-                    ->action(function (Message $record, array $data) {
-                        // Verificação adicional antes da transferência
-                        if ($record->replies()->count() > 0) {
-                            throw new \Exception(__('filament-communicate::default.messages.error.cannot_transfer_with_replies'));
-                        }
+                    Tables\Actions\Action::make('transfer')
+                        ->label(__('filament-communicate::default.actions.transfer.label'))
+                        ->icon('heroicon-o-arrow-right-circle')
+                        ->color('info')
+                        ->visible(function ($record) {
+                            // Só pode transferir se:
+                            // 1. Status é SENT ou READ
+                            // 2. Usuário atual é o destinatário
+                            // 3. Mensagem NÃO possui respostas
+                            return in_array($record->status, [MessageStatus::SENT, MessageStatus::READ]) &&
+                                   $record->recipient_id === Auth::id() &&
+                                   $record->replies()->count() === 0;
+                        })
+                        ->form([
+                            Forms\Components\Select::make('new_recipient_id')
+                                ->label(__('filament-communicate::default.forms.transfer.new_recipient_id.label'))
+                                ->relationship('recipient', 'name')
+                                ->required()
+                                ->searchable()
+                                ->preload(),
+                            Forms\Components\Textarea::make('reason')
+                                ->label(__('filament-communicate::default.forms.transfer.reason.label'))
+                                ->maxLength(500),
+                        ])
+                        ->action(function (Message $record, array $data) {
+                            // Verificação adicional antes da transferência
+                            if ($record->replies()->count() > 0) {
+                                throw new \Exception(__('filament-communicate::default.messages.error.cannot_transfer_with_replies'));
+                            }
 
-                        $newRecipient = User::find($data['new_recipient_id']);
-                        app(MessageService::class)
-                            ->transferMessage($record, $newRecipient, Auth::user(), $data['reason'] ?? null);
-                    }),
+                            $userModel = static::getUserModel();
+                            $newRecipient = $userModel::find($data['new_recipient_id']);
+                            app(MessageService::class)
+                                ->transferMessage($record, $newRecipient, Auth::user(), $data['reason'] ?? null);
+                        }),
 
-                Tables\Actions\Action::make('mark_read')
-                    ->label(__('filament-communicate::default.actions.mark_read.label'))
-                    ->icon('heroicon-o-eye')
-                    ->color('success')
-                    ->visible(fn ($record) => ! $record->read_at && $record->recipient_id === Auth::id())
-                    ->action(function (Message $record) {
-                        app(MessageService::class)
-                            ->markAsRead($record, Auth::user());
-                    }),
+                    Tables\Actions\Action::make('mark_read')
+                        ->label(__('filament-communicate::default.actions.mark_read.label'))
+                        ->icon('heroicon-o-eye')
+                        ->color('success')
+                        ->visible(fn ($record) => ! $record->read_at && $record->recipient_id === Auth::id())
+                        ->action(function (Message $record) {
+                            app(MessageService::class)
+                                ->markAsRead($record, Auth::user());
+                        }),
+
+                    Tables\Actions\DeleteAction::make(),
                 ]),
             ])
             ->bulkActions([
@@ -436,9 +445,6 @@ class MessageResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ])
             ->with([
                 'sender',
                 'recipient',
