@@ -23,6 +23,11 @@ class FilamentCommunicatePlugin implements \Filament\Contracts\Plugin
     //
     public function register(Panel $panel): void
     {
+        if (!$panel->hasDatabaseNotifications()) {
+            $panel->databaseNotifications()
+                ->databaseNotificationsPolling('30s');
+        }
+
         $panel
             ->resources([
                 MessageResource::class,
