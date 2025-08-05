@@ -12,7 +12,7 @@ class FilamentCommunicatePlugin implements \Filament\Contracts\Plugin
 {
     public static function make(): static
     {
-        return new self();
+        return new self;
     }
 
     public function getId(): string
