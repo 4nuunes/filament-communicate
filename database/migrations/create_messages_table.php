@@ -19,14 +19,14 @@ return new class() extends Migration {
             $table->foreignId('parent_id')->nullable()->after('id')->constrained('messages')->onDelete('cascade');
             $table->string('subject');
             $table->text('content');
+            $table->text('attachments')->nullable();
             $table->text('custom_data')->nullable();
-            $table->string('status', ['draft', 'pending_approval', 'approved', 'rejected', 'delivered', 'read', 'archived'])->default('draft');
-            $table->string('priority', ['low', 'normal', 'high', 'urgent'])->default('normal');
+            $table->string('status')->default('draft'); // ['draft', 'pending_approval', 'approved', 'rejected', 'delivered', 'read', 'archived']
+            $table->string('priority')->default('normal'); // ['low', 'normal', 'high', 'urgent']
             $table->timestamp('read_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
             $table->timestamp('delivered_at')->nullable();
-            $table->text('attachments')->nullable()->after('content');
             $table->timestamps();
             $table->softDeletes();
         });

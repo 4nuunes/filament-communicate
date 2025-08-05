@@ -21,9 +21,9 @@ class FilamentCommunicateServiceProvider extends PackageServiceProvider
             ->hasTranslations()
             ->hasMigrations([
                 'create_message_types_table',
+                'create_messages_table',
                 'create_message_approvals_table',
                 'create_message_transfers_table',
-                'create_messages_table',
             ])
             ->hasViews();
     }

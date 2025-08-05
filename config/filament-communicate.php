@@ -139,14 +139,14 @@ return [
     'navigation' => [
         // Configurações para MessageResource
         'message_resource' => [
-            'group' => 'Serviços',
+            'group' => 'Comunicação',
             'sort' => 40,
             'icon' => 'heroicon-o-envelope',
         ],
 
         // Configurações para MessageTypeResource
         'message_type_resource' => [
-            'group' => 'Configurações',
+            'group' => 'Comunicação',
             'sort' => 13,
             'icon' => 'heroicon-o-rectangle-group',
             'label' => 'Tipos de mensagens',

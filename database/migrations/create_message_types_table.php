@@ -16,7 +16,7 @@ return new class() extends Migration {
             $table->text('description')->nullable();
             $table->boolean('requires_approval')->default(false);
             $table->foreignId('approver_role_id')->nullable()->constrained('roles')->onDelete('set null');
-            $table->json('custom_fields')->nullable();
+            $table->text('custom_fields')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();

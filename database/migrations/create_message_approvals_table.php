@@ -15,7 +15,7 @@ return new class() extends Migration {
             $table->foreignId('approver_id')->constrained('users')->onDelete('cascade');
             $table->string('action', ['approved', 'rejected']);
             $table->text('reason')->nullable();
-            $table->json('metadata')->nullable();
+            $table->text('metadata')->nullable();
             $table->timestamps();
         });
     }
