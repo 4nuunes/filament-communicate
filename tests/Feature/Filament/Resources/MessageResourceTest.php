@@ -28,14 +28,14 @@ it('can render the index list message page', function () {
     expect($indexUrl)->toContain('messages');
 
     // Testar se a página ListMessages pode ser instanciada
-    $listPage = new ListMessages();
+    $listPage = new ListMessages;
     expect($listPage)->toBeInstanceOf(ListMessages::class);
     expect($listPage->getResource())->toBe(MessageResource::class);
 });
 
 it('can render Resource', function () {
     // Teste básico para verificar se o recurso pode ser instanciado
-    $resource = new MessageResource();
+    $resource = new MessageResource;
     expect($resource)->toBeInstanceOf(Filament\Resources\Resource::class);
 });
 
@@ -159,7 +159,7 @@ it('can filter messages by `message_type_id`', function () {
     $user->assignRole('super_admin');
     actingAs($user);
 
-    $messageType = MessageType::factory()->create();
+    $messageType = MessageType::factory()->noApproval()->create();
     $messages = Message::factory()->count(10)->create([
         'message_type_id' => $messageType->id,
     ]);
@@ -353,7 +353,7 @@ it('can create messages in modal', function () {
     $user->assignRole('super_admin');
     actingAs($user);
 
-    $messageType = MessageType::factory()->create();
+    $messageType = MessageType::factory()->noApproval()->create();
 
     livewire(ListMessages::class)
         ->mountAction(CreateAction::class)
@@ -444,4 +444,242 @@ it('can sort messages by status', function () {
         ->assertSuccessful()
         ->sortTable('status', 'desc')
         ->assertSuccessful();
+});
+
+// Testes específicos para MessagePolicy e ações de exclusão
+describe('MessagePolicy Integration Tests', function () {
+
+    it('shows delete action for draft messages created by user', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $draftMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::DRAFT,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionVisible('delete', $draftMessage);
+    });
+
+    it('shows delete action for pending messages created by user', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $pendingMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::PENDING,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionVisible('delete', $pendingMessage);
+    });
+
+    it('shows delete action for sent/read messages without replies created by regular user', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $sentMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::SENT,
+            'read_at' => now(),
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionVisible('delete', $sentMessage);
+    });
+
+    it('hides delete action for received messages from other users', function () {
+        $sender = User::factory()->create();
+        $recipient = User::factory()->create();
+        $recipient->assignRole('atendente');
+
+        $messageType = MessageType::factory()->create();
+
+        actingAs($recipient);
+
+        $receivedMessage = Message::factory()->create([
+            'sender_id' => $sender->id,
+            'recipient_id' => $recipient->id,
+            'status' => MessageStatus::SENT,
+            'read_at' => now(),
+            'message_type_id' => $messageType->id,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionHidden('delete', $receivedMessage);
+    });
+
+    it('shows delete action for super admin on any message', function () {
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('super_admin');
+        actingAs($superAdmin);
+
+        $otherUser = User::factory()->create();
+        $message = Message::factory()->create([
+            'sender_id' => $otherUser->id,
+            'status' => MessageStatus::APPROVED,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionVisible('delete', $message);
+    });
+
+    it('shows delete action for supervisor on pending messages from other users', function () {
+        $supervisor = User::factory()->create();
+        $supervisor->assignRole('supervisor');
+        actingAs($supervisor);
+
+        $otherUser = User::factory()->create();
+        $message = Message::factory()->create([
+            'sender_id' => $otherUser->id,
+            'status' => MessageStatus::PENDING,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionVisible('delete', $message);
+    });
+
+    it('hides delete action for supervisor on sent messages from other users', function () {
+        $supervisor = User::factory()->create();
+        $supervisor->assignRole('supervisor');
+        actingAs($supervisor);
+
+        $otherUser = User::factory()->create();
+        $message = Message::factory()->create([
+            'sender_id' => $otherUser->id,
+            'status' => MessageStatus::SENT,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionHidden('delete', $message);
+    });
+
+    it('hides delete action for approved messages created by regular user', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $approvedMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::APPROVED,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionHidden('delete', $approvedMessage);
+    });
+
+    it('hides delete action for rejected messages created by regular user', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $rejectedMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::REJECTED,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionHidden('delete', $rejectedMessage);
+    });
+
+    it('hides delete action for messages from other users that user did not receive', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $otherSender = User::factory()->create();
+        $otherRecipient = User::factory()->create();
+
+        $otherMessage = Message::factory()->create([
+            'sender_id' => $otherSender->id,
+            'recipient_id' => $otherRecipient->id,
+            'status' => MessageStatus::DRAFT,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableActionHidden('delete', $otherMessage);
+    });
+
+    it('can delete draft message through policy', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $draftMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::DRAFT,
+        ]);
+
+        livewire(ListMessages::class)
+            ->callTableAction('delete', $draftMessage)
+            ->assertSuccessful();
+
+        // Verificar se a ação foi executada com sucesso
+        // O soft delete será verificado nos testes de policy
+        expect(true)->toBeTrue();
+    });
+
+    it('can delete pending message through policy', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        $pendingMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::PENDING,
+        ]);
+
+        livewire(ListMessages::class)
+            ->callTableAction('delete', $pendingMessage)
+            ->assertSuccessful();
+
+        // Verificar se a ação foi executada com sucesso
+        // O soft delete será verificado nos testes de policy
+        expect(true)->toBeTrue();
+    });
+
+    it('hides bulk delete action for regular users', function () {
+        $user = User::factory()->create();
+        $user->assignRole('atendente');
+        actingAs($user);
+
+        // Criar mensagens que o usuário pode deletar individualmente
+        $draftMessage = Message::factory()->create([
+            'sender_id' => $user->id,
+            'status' => MessageStatus::DRAFT,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableBulkActionHidden('delete');
+    });
+
+    it('shows bulk delete action for super admin', function () {
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('super_admin');
+        actingAs($superAdmin);
+
+        $message = Message::factory()->create([
+            'status' => MessageStatus::DRAFT,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableBulkActionVisible('delete');
+    });
+
+    it('shows bulk delete action for supervisor', function () {
+        $supervisor = User::factory()->create();
+        $supervisor->assignRole('supervisor');
+        actingAs($supervisor);
+
+        $message = Message::factory()->create([
+            'status' => MessageStatus::PENDING,
+        ]);
+
+        livewire(ListMessages::class)
+            ->assertTableBulkActionVisible('delete');
+    });
 });

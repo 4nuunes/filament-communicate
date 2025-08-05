@@ -6,9 +6,9 @@ namespace Alessandronuunes\FilamentCommunicate\Helpers;
 
 use Alessandronuunes\FilamentCommunicate\Models\Message;
 use Alessandronuunes\FilamentCommunicate\Notifications\MessageNotification;
-use App\Models\User;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
 
 class MessageNotificationHelper
@@ -16,9 +16,9 @@ class MessageNotificationHelper
     /**
      * Envia notificação para supervisor sobre mensagem pendente
      */
-    public static function notifyPendingApproval(User $supervisor, Message $message): void
+    public static function notifyPendingApproval(Authenticatable $supervisor, Message $message): void
     {
-        Notification::make()
+        $notification = Notification::make()
             ->title(__('filament-communicate::default.notifications.pending_approval.title'))
             ->body(__('filament-communicate::default.notifications.pending_approval.body', [
                 'sender_name' => $message->sender->name,
@@ -26,7 +26,7 @@ class MessageNotificationHelper
             ]))
             ->icon('heroicon-o-clock')
             ->color('warning')
-            ->duration(8000)
+            ->duration(0) // Não remove automaticamente
             ->actions([
                 Action::make('view')
                     ->label(__('filament-communicate::default.notifications.actions.view_message'))
@@ -34,16 +34,20 @@ class MessageNotificationHelper
                     ->button()
                     ->markAsRead() // Marca como lida automaticamente
                     ->close(),
-            ])
-            ->sendToDatabase($supervisor);
+            ]);
+
+        // Verificar se o supervisor tem o método notify antes de enviar para database
+        if (method_exists($supervisor, 'notify')) {
+            $notification->sendToDatabase($supervisor);
+        }
     }
 
     /**
      * Notifica remetente sobre aprovação
      */
-    public static function notifyApproved(User $sender, Message $message): void
+    public static function notifyApproved(Authenticatable $sender, Message $message): void
     {
-        Notification::make()
+        $notification = Notification::make()
             ->title(__('filament-communicate::default.notifications.approved.title'))
             ->body(__('filament-communicate::default.notifications.approved.body', [
                 'subject' => $message->subject,
@@ -62,16 +66,20 @@ class MessageNotificationHelper
                     ->label(__('filament-communicate::default.notifications.actions.dismiss'))
                     ->color('gray')
                     ->close(),
-            ])
-            ->sendToDatabase($sender);
+            ]);
+
+        // Verificar se o sender tem o método notify antes de enviar para database
+        if (method_exists($sender, 'notify')) {
+            $notification->sendToDatabase($sender);
+        }
     }
 
     /**
      * Notifica destinatário sobre nova mensagem
      */
-    public static function notifyNewMessage(User $recipient, Message $message): void
+    public static function notifyNewMessage(Authenticatable $recipient, Message $message): void
     {
-        Notification::make()
+        $notification = Notification::make()
             ->title(__('filament-communicate::default.notifications.new_message.title'))
             ->body(__('filament-communicate::default.notifications.new_message.body', [
                 'sender_name' => $message->sender->name,
@@ -102,14 +110,18 @@ class MessageNotificationHelper
                     })
                     ->color('gray')
                     ->close(),
-            ])
-            ->sendToDatabase($recipient);
+            ]);
+
+        // Verificar se o recipient tem o método notify antes de enviar para database
+        if (method_exists($recipient, 'notify')) {
+            $notification->sendToDatabase($recipient);
+        }
     }
 
     /**
      * Notifica sobre rejeição
      */
-    public static function notifyRejected(User $sender, Message $message, ?string $reason = null): void
+    public static function notifyRejected(Authenticatable $sender, Message $message, ?string $reason = null): void
     {
         $body = __('filament-communicate::default.notifications.rejected.body', [
             'subject' => $message->subject,
@@ -120,7 +132,7 @@ class MessageNotificationHelper
             ]);
         }
 
-        Notification::make()
+        $notification = Notification::make()
             ->title(__('filament-communicate::default.notifications.rejected.title'))
             ->body($body)
             ->icon('heroicon-o-x-circle')
@@ -137,14 +149,18 @@ class MessageNotificationHelper
                     ->label(__('filament-communicate::default.notifications.actions.dismiss'))
                     ->color('gray')
                     ->close(),
-            ])
-            ->sendToDatabase($sender);
+            ]);
+
+        // Verificar se o sender tem o método notify antes de enviar para database
+        if (method_exists($sender, 'notify')) {
+            $notification->sendToDatabase($sender);
+        }
     }
 
     /**
      * Marca todas as notificações de um usuário como lidas
      */
-    public static function markAllAsRead(User $user): void
+    public static function markAllAsRead(Authenticatable $user): void
     {
         DB::table('notifications')
             ->where('notifiable_id', $user->id)
@@ -156,7 +172,7 @@ class MessageNotificationHelper
     /**
      * Remove notificações antigas de um usuário
      */
-    public static function cleanOldNotifications(User $user, int $days = 30): void
+    public static function cleanOldNotifications(Authenticatable $user, int $days = 30): void
     {
         DB::table('notifications')
             ->where('notifiable_id', $user->id)
@@ -168,7 +184,7 @@ class MessageNotificationHelper
     /**
      * Notifica sobre uma resposta recebida
      */
-    public static function notifyReply(User $recipient, Message $reply): void
+    public static function notifyReply(Authenticatable $recipient, Message $reply): void
     {
         try {
             // Log para debug
@@ -181,7 +197,7 @@ class MessageNotificationHelper
             ]);
 
             // Notificação do Filament (mais visível)
-            Notification::make()
+            $notification = Notification::make()
                 ->title(__('filament-communicate::default.notifications.reply.title'))
                 ->body(__('filament-communicate::default.notifications.reply.body', [
                     'sender_name' => $reply->sender->name,
@@ -201,11 +217,17 @@ class MessageNotificationHelper
                         ->label(__('filament-communicate::default.notifications.actions.dismiss'))
                         ->color('gray')
                         ->close(),
-                ])
-                ->sendToDatabase($recipient);
+                ]);
+
+            // Verificar se o recipient tem o método notify antes de enviar para database
+            if (method_exists($recipient, 'notify')) {
+                $notification->sendToDatabase($recipient);
+            }
 
             // Notificação por email/database (para histórico)
-            $recipient->notify(new MessageNotification($reply, 'reply'));
+            if (method_exists($recipient, 'notify')) {
+                $recipient->notify(new MessageNotification($reply, 'reply'));
+            }
 
             \Illuminate\Support\Facades\Log::info('Reply notification sent successfully', [
                 'recipient_id' => $recipient->id,

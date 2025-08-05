@@ -23,14 +23,14 @@ it('can render the index list message page', function () {
     expect($indexUrl)->toContain('message-types');
 
     // Testar se a página ListMessageTypes pode ser instanciada
-    $listPage = new ListMessageTypes();
+    $listPage = new ListMessageTypes;
     expect($listPage)->toBeInstanceOf(ListMessageTypes::class);
     expect($listPage->getResource())->toBe(MessageTypeResource::class);
 });
 
 it('can render Resource', function () {
     // Teste básico para verificar se o recurso pode ser instanciado
-    $resource = new MessageTypeResource();
+    $resource = new MessageTypeResource;
     expect($resource)->toBeInstanceOf(Filament\Resources\Resource::class);
 });
 

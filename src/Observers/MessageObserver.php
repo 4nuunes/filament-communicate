@@ -12,8 +12,7 @@ class MessageObserver
 {
     public function __construct(
         private MessageService $messageService
-    ) {
-    }
+    ) {}
 
     public function creating(Message $message): void
     {

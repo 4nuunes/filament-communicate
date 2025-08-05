@@ -18,8 +18,7 @@ class MessageReplyService
 {
     public function __construct(
         private MessageDeliveryService $deliveryService
-    ) {
-    }
+    ) {}
 
     /**
      * Cria uma resposta para uma mensagem

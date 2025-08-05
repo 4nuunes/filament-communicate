@@ -12,7 +12,7 @@ class FilamentCommunicatePlugin implements \Filament\Contracts\Plugin
 {
     public static function make(): static
     {
-        return new static();
+        return new static;
     }
 
     public function getId(): string
@@ -31,7 +31,5 @@ class FilamentCommunicatePlugin implements \Filament\Contracts\Plugin
 
     }
 
-    public function boot(Panel $panel): void
-    {
-    }
+    public function boot(Panel $panel): void {}
 }

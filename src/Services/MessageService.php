@@ -21,8 +21,7 @@ class MessageService
         private MessageStatisticsService $statisticsService,
         private MessageDeliveryService $deliveryService,
         private MessageReplyService $replyService
-    ) {
-    }
+    ) {}
 
     /**
      * Manipula mensagem recém-criada (para Observer)
@@ -41,12 +40,22 @@ class MessageService
             return;
         }
 
-        // Usar o método requiresApproval() que já verifica se é resposta
-        if ($message->status === MessageStatus::SENT &&
-            $message->requiresApproval() && // Este método já verifica se não é resposta
-            $message->status !== MessageStatus::DRAFT) {
+        // Se a mensagem foi criada com status SENT e não é rascunho
+        if ($message->status === MessageStatus::SENT) {
 
-            $this->convertToApprovalRequired($message);
+            // Se requer aprovação, converter para PENDING
+            if ($message->requiresApproval()) {
+                $this->convertToApprovalRequired($message);
+            }
+            // Se NÃO requer aprovação, entregar diretamente
+            else {
+                $this->deliveryService->deliverMessage($message);
+
+                Log::info('Message delivered directly (no approval required)', [
+                    'message_id' => $message->id,
+                    'recipient_id' => $message->recipient_id,
+                ]);
+            }
         }
     }
 

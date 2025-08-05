@@ -91,7 +91,11 @@ class MessageTransferService
      */
     private function notifyTransfer(Message $message, User $newRecipient): void
     {
-        $newRecipient->notify(new MessageNotification($message, 'transferred'));
-        $message->sender->notify(new MessageNotification($message, 'transferred_info'));
+        if (method_exists($newRecipient, 'notify')) {
+            $newRecipient->notify(new MessageNotification($message, 'transferred'));
+        }
+        if (method_exists($message->sender, 'notify')) {
+            $message->sender->notify(new MessageNotification($message, 'transferred_info'));
+        }
     }
 }

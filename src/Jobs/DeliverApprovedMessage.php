@@ -96,9 +96,11 @@ class DeliverApprovedMessage implements ShouldQueue
     private function deliverMessage(): void
     {
         // Notificar o destinatário
-        $this->message->recipient->notify(
-            new MessageNotification($this->message, 'new_message')
-        );
+        if (method_exists($this->message->recipient, 'notify')) {
+            $this->message->recipient->notify(
+                new MessageNotification($this->message, 'new_message')
+            );
+        }
 
         // Atualizar timestamp de entrega
         $this->message->update([

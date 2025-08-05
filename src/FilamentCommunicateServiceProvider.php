@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Alessandronuunes\FilamentCommunicate;
 
+use Alessandronuunes\FilamentCommunicate\Models\Message;
+use Alessandronuunes\FilamentCommunicate\Policies\MessagePolicy;
+use Illuminate\Support\Facades\Gate;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -46,5 +49,8 @@ class FilamentCommunicateServiceProvider extends PackageServiceProvider
 
         // Load views with correct namespace
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'filament-communicate');
+
+        // Registrar a MessagePolicy
+        Gate::policy(Message::class, MessagePolicy::class);
     }
 }

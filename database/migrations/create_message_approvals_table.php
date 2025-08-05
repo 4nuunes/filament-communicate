@@ -6,14 +6,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class() extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('message_approvals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('message_id')->constrained('messages')->onDelete('cascade');
             $table->foreignId('approver_id')->constrained('users')->onDelete('cascade');
-            $table->string('action', ['approved', 'rejected']);
+            $table->string('action', ['approved', 'rejected', 'pending_approval']);
             $table->text('reason')->nullable();
             $table->text('metadata')->nullable();
             $table->timestamps();

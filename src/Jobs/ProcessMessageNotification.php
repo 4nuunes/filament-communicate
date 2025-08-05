@@ -65,9 +65,11 @@ class ProcessMessageNotification implements ShouldQueue
             }
 
             // Enviar notificação
-            $this->recipient->notify(
-                new MessageNotification($this->message, $this->notificationType)
-            );
+            if (method_exists($this->recipient, 'notify')) {
+                $this->recipient->notify(
+                    new MessageNotification($this->message, $this->notificationType)
+                );
+            }
 
             Log::info('Message notification processed successfully', [
                 'message_id' => $this->message->id,

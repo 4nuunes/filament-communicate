@@ -39,6 +39,14 @@ class MessageResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
+        // Priorizar configuração do arquivo config
+        $configGroup = config('filament-communicate.navigation.message_resource.group');
+
+        if ($configGroup !== null) {
+            return $configGroup;
+        }
+
+        // Fallback para tradução se não configurado
         return __('filament-communicate::default.navigation.message_resource.group');
     }
 
@@ -412,14 +420,18 @@ class MessageResource extends Resource
                                 ->markAsRead($record, Auth::user());
                         }),
 
-                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->authorize('delete'),
                 ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->authorize('deleteAny'),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->authorize('restoreAny'),
+                    Tables\Actions\ForceDeleteBulkAction::make()
+                        ->authorize('forceDeleteAny'),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
