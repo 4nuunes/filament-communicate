@@ -8,7 +8,6 @@ use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
 use Alessandronuunes\FilamentCommunicate\Helpers\MessageNotificationHelper;
 use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
 use Alessandronuunes\FilamentCommunicate\Models\Message;
-use App\Models\User;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -25,8 +24,8 @@ class MessageReplyService
      */
     public function createReply(
         Message $originalMessage,
-        User $sender,
-        User $recipient,
+        mixed $sender,
+        mixed $recipient,
         string $subject,
         string $content
     ): Message {
@@ -116,7 +115,7 @@ class MessageReplyService
     /**
      * Verifica se um usuário pode responder a uma mensagem
      */
-    public function canReply(Message $message, User $user): bool
+    public function canReply(Message $message, mixed $user): bool
     {
         // ✅ EXCEÇÃO: Administradores podem responder a qualquer mensagem
         if (MessagePermissions::isSuperAdmin($user)) {
@@ -158,7 +157,7 @@ class MessageReplyService
     /**
      * Marca todas as respostas de um thread como lidas para um usuário
      */
-    public function markThreadAsRead(Message $message, User $user): void
+    public function markThreadAsRead(Message $message, mixed $user): void
     {
         $rootMessage = $this->getRootMessage($message);
         $replies = $this->getReplies($rootMessage);
@@ -199,7 +198,7 @@ class MessageReplyService
     /**
      * Valida se pode criar uma resposta
      */
-    private function validateReply(Message $originalMessage, User $sender): void
+    private function validateReply(Message $originalMessage, mixed $sender): void
     {
         if (! $this->canReply($originalMessage, $sender)) {
             throw new Exception(__('filament-communicate::default.exceptions.cannot_reply_to_message'));
@@ -244,8 +243,8 @@ class MessageReplyService
     private function createReplyRecord(
         Message $originalMessage,
         Message $rootMessage,
-        User $sender,
-        User $recipient,
+        mixed $sender,
+        mixed $recipient,
         string $subject,
         string $content,
         string $replyCode
@@ -284,7 +283,7 @@ class MessageReplyService
 
         $currentRecipientId = $rootMessage->current_recipient_id ?? $rootMessage->recipient_id;
         if ($currentRecipientId && $currentRecipientId !== $rootMessage->recipient_id) {
-            $currentRecipient = User::find($currentRecipientId);
+            $currentRecipient = app(config('auth.providers.users.model'))->find($currentRecipientId);
             if ($currentRecipient) {
                 $participants->push($currentRecipient);
             }
@@ -302,7 +301,7 @@ class MessageReplyService
 
             $replyCurrentRecipientId = $reply->current_recipient_id ?? $reply->recipient_id;
             if ($replyCurrentRecipientId && $replyCurrentRecipientId !== $reply->recipient_id) {
-                $replyCurrentRecipient = User::find($replyCurrentRecipientId);
+                $replyCurrentRecipient = app(config('auth.providers.users.model'))->find($replyCurrentRecipientId);
                 if ($replyCurrentRecipient) {
                     $participants->push($replyCurrentRecipient);
                 }
@@ -333,7 +332,7 @@ class MessageReplyService
     /**
      * Notifica todos os participantes do thread sobre uma nova resposta
      */
-    private function notifyThreadParticipants(Message $reply, User $sender): void
+    private function notifyThreadParticipants(Message $reply, mixed $sender): void
     {
         $rootMessage = $this->getRootMessage($reply);
         $participants = $this->getThreadParticipants($rootMessage);

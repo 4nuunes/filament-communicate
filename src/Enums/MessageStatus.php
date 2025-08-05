@@ -18,6 +18,7 @@ enum MessageStatus: string implements HasColor, HasLabel
     case SENT = 'sent';  // Renomeado de Delivered para SENT
     case READ = 'read';
     case ARCHIVED = 'archived';
+    case FAILED = 'failed';
 
     /**
      * Retorna o label em português para exibição
@@ -32,6 +33,7 @@ enum MessageStatus: string implements HasColor, HasLabel
             self::SENT => __('filament-communicate::default.enums.status.sent'),
             self::READ => __('filament-communicate::default.enums.status.read'),
             self::ARCHIVED => __('filament-communicate::default.enums.status.archived'),
+            self::FAILED => __('filament-communicate::default.enums.status.failed'),
         };
     }
 
@@ -48,6 +50,7 @@ enum MessageStatus: string implements HasColor, HasLabel
             self::SENT => 'info',
             self::READ => 'primary',
             self::ARCHIVED => 'secondary',
+            self::FAILED => 'danger',
         };
     }
 

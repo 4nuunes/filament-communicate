@@ -23,12 +23,7 @@ class MessageNotification extends Notification implements ShouldQueue
         public Message $message,
         public string $type = 'new_message'
     ) {
-        // Configurar delay baseado no tipo
-        if ($type === 'urgent') {
-            $this->delay(0);
-        } else {
-            $this->delay(now()->addSeconds(5));
-        }
+        // Delay será configurado quando a notificação for despachada
     }
 
     /**

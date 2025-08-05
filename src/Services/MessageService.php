@@ -8,7 +8,6 @@ use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
 use Alessandronuunes\FilamentCommunicate\Models\Message;
 use Alessandronuunes\FilamentCommunicate\Models\MessageType;
-use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -62,7 +61,7 @@ class MessageService
     /**
      * Marca mensagem como lida
      */
-    public function markAsRead(Message $message, User $user): void
+    public function markAsRead(Message $message, mixed $user): void
     {
         if ($message->recipient_id !== $user->id) {
             throw new Exception(__('filament-communicate::default.validation.only_recipient_can_mark_read'));
@@ -86,7 +85,7 @@ class MessageService
     /**
      * Delega aprovação para o service especializado
      */
-    public function approveMessage(Message $message, User $approver, ?string $reason = null): void
+    public function approveMessage(Message $message, mixed $approver, ?string $reason = null): void
     {
         $this->approvalService->approveMessage($message, $approver, $reason);
     }
@@ -94,7 +93,7 @@ class MessageService
     /**
      * Delega rejeição para o service especializado
      */
-    public function rejectMessage(Message $message, User $approver, string $reason): void
+    public function rejectMessage(Message $message, mixed $approver, string $reason): void
     {
         $this->approvalService->rejectMessage($message, $approver, $reason);
     }
@@ -102,7 +101,7 @@ class MessageService
     /**
      * Delega transferência para o service especializado
      */
-    public function transferMessage(Message $message, User $newRecipient, User $transferredBy, ?string $reason = null): void
+    public function transferMessage(Message $message, mixed $newRecipient, mixed $transferredBy, ?string $reason = null): void
     {
         $this->transferService->transferMessage($message, $newRecipient, $transferredBy, $reason);
     }
@@ -110,7 +109,7 @@ class MessageService
     /**
      * Delega estatísticas para o service especializado
      */
-    public function getUserStatistics(User $user): array
+    public function getUserStatistics(mixed $user): array
     {
         return $this->statisticsService->getUserStatistics($user);
     }
@@ -118,13 +117,13 @@ class MessageService
     /**
      * Delega badges para o service especializado
      */
-    public function getMenuBadges(User $user): array
+    public function getMenuBadges(mixed $user): array
     {
         return $this->statisticsService->getMenuBadges($user);
     }
 
     // Métodos privados de apoio...
-    private function validateMessageCreation(array $data, User $sender): void
+    private function validateMessageCreation(array $data, mixed $sender): void
     {
         if ($data['recipient_id'] == $sender->id) {
             throw new Exception(__('filament-communicate::default.validation.cannot_send_to_self'));
@@ -140,7 +139,7 @@ class MessageService
         return $messageType->requires_approval ? MessageStatus::PENDING : MessageStatus::SENT;
     }
 
-    private function createMessageRecord(array $data, User $sender, MessageType $messageType, MessageStatus $status): Message
+    private function createMessageRecord(array $data, mixed $sender, MessageType $messageType, MessageStatus $status): Message
     {
         return Message::create([
             'message_type_id' => $data['message_type_id'],
@@ -208,8 +207,8 @@ class MessageService
      */
     public function createReply(
         Message $originalMessage,
-        User $sender,
-        User $recipient,
+        mixed $sender,
+        mixed $recipient,
         string $subject,
         string $content
     ): Message {
@@ -233,7 +232,7 @@ class MessageService
     /**
      * Verifica se usuário pode responder
      */
-    public function canReply(Message $message, User $user): bool
+    public function canReply(Message $message, mixed $user): bool
     {
         return $this->replyService->canReply($message, $user);
     }
@@ -241,7 +240,7 @@ class MessageService
     /**
      * Marca thread como lido
      */
-    public function markThreadAsRead(Message $message, User $user): void
+    public function markThreadAsRead(Message $message, mixed $user): void
     {
         $this->replyService->markThreadAsRead($message, $user);
     }

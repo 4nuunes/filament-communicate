@@ -7,7 +7,6 @@ namespace Alessandronuunes\FilamentCommunicate\Services;
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
 use Alessandronuunes\FilamentCommunicate\Models\Message;
 use Alessandronuunes\FilamentCommunicate\Notifications\MessageNotification;
-use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +16,7 @@ class MessageTransferService
     /**
      * Transfere uma mensagem para outro destinatário
      */
-    public function transferMessage(Message $message, User $newRecipient, User $transferredBy, ?string $reason = null): void
+    public function transferMessage(Message $message, mixed $newRecipient, mixed $transferredBy, ?string $reason = null): void
     {
         try {
             DB::beginTransaction();
@@ -55,7 +54,7 @@ class MessageTransferService
     /**
      * Valida se a transferência é possível
      */
-    private function validateTransfer(Message $message, User $newRecipient, User $transferredBy): void
+    private function validateTransfer(Message $message, mixed $newRecipient, mixed $transferredBy): void
     {
         if (! in_array($message->status, [MessageStatus::SENT, MessageStatus::READ])) {
             throw new Exception(__('filament-communicate::default.exceptions.cannot_transfer_current_status'));
@@ -75,7 +74,7 @@ class MessageTransferService
     /**
      * Cria registro de transferência
      */
-    private function createTransferRecord(Message $message, User $newRecipient, User $transferredBy, ?string $reason): void
+    private function createTransferRecord(Message $message, mixed $newRecipient, mixed $transferredBy, ?string $reason): void
     {
         \Alessandronuunes\FilamentCommunicate\Models\MessageTransfer::create([
             'message_id' => $message->id,
@@ -89,7 +88,7 @@ class MessageTransferService
     /**
      * Notifica sobre a transferência
      */
-    private function notifyTransfer(Message $message, User $newRecipient): void
+    private function notifyTransfer(Message $message, mixed $newRecipient): void
     {
         if (method_exists($newRecipient, 'notify')) {
             $newRecipient->notify(new MessageNotification($message, 'transferred'));

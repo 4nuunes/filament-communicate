@@ -29,7 +29,9 @@
         "orchestra/testbench": "^8.0",
         "pestphp/pest-plugin-laravel": "^2.0",
         "spatie/laravel-permission": "^6.0@dev",
-        "pestphp/pest-plugin-livewire": "2.x-dev"
+        "pestphp/pest-plugin-livewire": "2.x-dev",
+        "captainhook/captainhook": "^6.0@dev",
+        "phpstan/phpstan": "2.1.x-dev"
     },
     "scripts": {
         "test": "vendor/bin/pest",

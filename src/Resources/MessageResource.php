@@ -404,7 +404,7 @@ class MessageResource extends Resource
                                 throw new \Exception(__('filament-communicate::default.messages.error.cannot_transfer_with_replies'));
                             }
 
-                            $userModel = static::getUserModel();
+                            $userModel = app(static::class)->getUserModel();
                             $newRecipient = $userModel::find($data['new_recipient_id']);
                             app(MessageService::class)
                                 ->transferMessage($record, $newRecipient, Auth::user(), $data['reason'] ?? null);

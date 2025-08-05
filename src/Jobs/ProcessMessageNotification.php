@@ -6,15 +6,17 @@ namespace Alessandronuunes\FilamentCommunicate\Jobs;
 
 use Alessandronuunes\FilamentCommunicate\Models\Message;
 use Alessandronuunes\FilamentCommunicate\Notifications\MessageNotification;
-use App\Models\User;
 use Exception;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
 class ProcessMessageNotification implements ShouldQueue
 {
-    use Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
 
@@ -25,16 +27,16 @@ class ProcessMessageNotification implements ShouldQueue
      */
     public function __construct(
         public Message $message,
-        public User $recipient,
+        public mixed $recipient,
         public string $notificationType = 'new_message'
     ) {
         // Configurar delay baseado na prioridade da mensagem
         if ($message->priority === 'urgent') {
-            $this->delay(0); // Imediato
+            $this->delay = 0; // Imediato
         } elseif ($message->priority === 'high') {
-            $this->delay(now()->addSeconds(30)); // 30 segundos
+            $this->delay = now()->addSeconds(30); // 30 segundos
         } else {
-            $this->delay(now()->addMinutes(2)); // 2 minutos
+            $this->delay = now()->addMinutes(2); // 2 minutos
         }
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alessandronuunes\FilamentCommunicate\Observers;
 
 use Alessandronuunes\FilamentCommunicate\Models\MessageType;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class MessageTypeObserver
@@ -100,7 +101,7 @@ class MessageTypeObserver
      */
     public function deleted(MessageType $messageType): void
     {
-        \Log::info('MessageType deleted', [
+        Log::info('MessageType deleted', [
             'id' => $messageType->id,
             'name' => $messageType->name,
             'slug' => $messageType->slug,
@@ -113,7 +114,7 @@ class MessageTypeObserver
      */
     public function restored(MessageType $messageType): void
     {
-        \Log::info('MessageType restored', [
+        Log::info('MessageType restored', [
             'id' => $messageType->id,
             'name' => $messageType->name,
             'slug' => $messageType->slug,

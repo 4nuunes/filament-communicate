@@ -6,14 +6,13 @@ namespace Alessandronuunes\FilamentCommunicate\Services;
 
 use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
-use App\Models\User;
 
 class MessageStatisticsService
 {
     /**
      * Obtém estatísticas do usuário
      */
-    public function getUserStatistics(User $user): array
+    public function getUserStatistics(mixed $user): array
     {
         return [
             'sent_messages' => $this->getSentMessagesStats($user),
@@ -28,7 +27,7 @@ class MessageStatisticsService
     /**
      * Obtém contadores para badges do menu
      */
-    public function getMenuBadges(User $user): array
+    public function getMenuBadges(mixed $user): array
     {
         return [
             'unread_messages' => $user->receivedMessages()->whereNull('read_at')->count(),
@@ -44,7 +43,7 @@ class MessageStatisticsService
     /**
      * Estatísticas de mensagens enviadas
      */
-    private function getSentMessagesStats(User $user): array
+    private function getSentMessagesStats(mixed $user): array
     {
         return [
             'total' => $user->sentMessages()->count(),
@@ -58,7 +57,7 @@ class MessageStatisticsService
     /**
      * Estatísticas de mensagens recebidas
      */
-    private function getReceivedMessagesStats(User $user): array
+    private function getReceivedMessagesStats(mixed $user): array
     {
         return [
             'total' => $user->receivedMessages()->count(),
@@ -71,7 +70,7 @@ class MessageStatisticsService
     /**
      * Estatísticas de aprovações
      */
-    private function getApprovalsStats(User $user): array
+    private function getApprovalsStats(mixed $user): array
     {
         return [
             'pending' => $user->pendingApprovalMessages()->count(),
@@ -83,7 +82,7 @@ class MessageStatisticsService
     /**
      * Estatísticas de transferências
      */
-    private function getTransfersStats(User $user): array
+    private function getTransfersStats(mixed $user): array
     {
         return [
             'transferred_from' => $user->transferredFromMessages()->count(),
@@ -95,7 +94,7 @@ class MessageStatisticsService
     /**
      * Estatísticas dos últimos 30 dias
      */
-    private function getLast30DaysStats(User $user): array
+    private function getLast30DaysStats(mixed $user): array
     {
         return [
             'sent' => $user->sentMessages()->where('created_at', '>=', now()->subDays(30))->count(),
@@ -110,7 +109,7 @@ class MessageStatisticsService
     /**
      * Estatísticas por prioridade
      */
-    private function getPriorityStats(User $user): array
+    private function getPriorityStats(mixed $user): array
     {
         return [
             'urgent_sent' => $user->sentMessages()->where('priority', MessagePriority::URGENT)->count(),

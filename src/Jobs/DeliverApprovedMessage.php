@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace Alessandronuunes\FilamentCommunicate\Jobs;
 
 use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
-use App\Notifications\MessageNotification;
+use Alessandronuunes\FilamentCommunicate\Models\Message;
+use Alessandronuunes\FilamentCommunicate\Notifications\MessageNotification;
 use Exception;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use lessandronuunes\FilamentCommunicate\Models\Message;
 
 class DeliverApprovedMessage implements ShouldQueue
 {
-    use Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
 
@@ -28,11 +31,11 @@ class DeliverApprovedMessage implements ShouldQueue
     ) {
         // Configurar prioridade da queue baseada na prioridade da mensagem
         if ($message->priority === 'urgent') {
-            $this->onQueue('urgent');
+            $this->queue = 'urgent';
         } elseif ($message->priority === 'high') {
-            $this->onQueue('high');
+            $this->queue = 'high';
         } else {
-            $this->onQueue('default');
+            $this->queue = 'default';
         }
     }
 
