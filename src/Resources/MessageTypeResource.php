@@ -35,11 +35,11 @@ class MessageTypeResource extends Resource
     {
         // Priorizar configuração do arquivo config
         $configGroup = config('filament-communicate.navigation.message_type_resource.group');
-        
+
         if ($configGroup !== null) {
             return $configGroup;
         }
-        
+
         // Fallback para tradução se não configurado
         return __('filament-communicate::default.navigation.message_type_resource.group');
     }
