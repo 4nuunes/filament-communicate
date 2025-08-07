@@ -72,65 +72,10 @@ use Alessandronuunes\FilamentCommunicate\FilamentCommunicatePlugin;
 public function panel(Panel $panel): Panel
 {
     return $panel
-        ->databaseNotifications()
-        ->databaseNotificationsPolling('30s')
         ->plugins([
             FilamentCommunicatePlugin::make(),
         ]);
 }
-```
-
-## 🔔 Notification System Setup
-
-**IMPORTANT**: The communication system requires Laravel's notification system to be properly configured to function correctly.
-
-### Required Configuration
-
-1. **Configure database notifications in your Filament Panel Provider:**
-
-```php
-use Filament\Panel;
-
-public function panel(Panel $panel): Panel
-{
-    return $panel
-        ->databaseNotifications() // Habilita notificações no banco de dados
-        ->databaseNotificationsPolling('30s') // Atualiza notificações a cada 30 segundos
-        ->plugins([
-            FilamentCommunicatePlugin::make(),
-        ]);
-}
-```
-
-2. **Ensure your User model uses the Notifiable trait:**
-
-```php
-use Illuminate\Notifications\Notifiable;
-
-class User extends Authenticatable
-{
-    use Notifiable;
-    
-    // ... rest of your model
-}
-```
-
-2. **Configure notification channels in your `.env` file:**
-
-```env
-# Optional: Email notifications
-MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
-MAIL_PORT=587
-MAIL_USERNAME=your-email
-MAIL_PASSWORD=your-password
-```
-
-4. **Create the notifications table (if not already created):**
-
-```bash
-php artisan notifications:table
-php artisan migrate
 ```
 
 ### Notification Features
@@ -141,7 +86,12 @@ The system uses notifications for:
 - **Status updates**: When message status changes (approved/rejected)
 - **Reply notifications**: When someone replies to your message
 
+**Create the notifications table (if not already created):**
 
+```bash
+php artisan notifications:table
+php artisan migrate
+```
 
 ## ⚙️ Configuration
 
