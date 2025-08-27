@@ -148,9 +148,19 @@ class MessageResource extends Resource
                             ->label(__('filament-communicate::default.forms.message.fields.priority.label'))
                             ->options(MessagePriority::class)
                             ->default(MessagePriority::NORMAL)
-
                             ->columnSpan(2)
                             ->required(),
+
+                        Forms\Components\Select::make('tags')
+                            ->label(__('filament-communicate::default.forms.message.fields.tags.label'))
+                            ->relationship('tags', 'name')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->columnSpan(2)
+                            ->getOptionLabelFromRecordUsing(fn ($record): string => "{$record->name} (★{$record->rating})")
+                            ->optionsLimit(50)
+                            ->helperText(__('filament-communicate::default.forms.message.fields.tags.helper_text')),
 
                         Forms\Components\Toggle::make('save_as_draft')
                             ->label(__('filament-communicate::default.forms.message.fields.save_as_draft.label'))
@@ -295,6 +305,24 @@ class MessageResource extends Resource
                     ->badge()
                     ->color('info')
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                // Tags da mensagem
+                Tables\Columns\TextColumn::make('tags.name')
+                    ->label(__('filament-communicate::default.tables.columns.tags'))
+                    ->badge()
+                    ->color(fn ($record, $state) => $record->color ?? 'gray')
+                    ->formatStateUsing(fn ($state, $record) => $state.' (★'.$record->rating.')')
+                    ->separator(', ')
+                    ->limit(3)
+                    ->tooltip(function ($record) {
+                        $tags = $record->tags;
+                        if ($tags->count() <= 3) {
+                            return null;
+                        }
+
+                        return $tags->pluck('name')->join(', ');
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -308,6 +336,13 @@ class MessageResource extends Resource
                 Tables\Filters\SelectFilter::make('message_type_id')
                     ->label(__('filament-communicate::default.tables.filters.message_type.label'))
                     ->relationship('messageType', 'name'),
+
+                Tables\Filters\SelectFilter::make('tags')
+                    ->label(__('filament-communicate::default.tables.filters.tags.label'))
+                    ->relationship('tags', 'name')
+                    ->multiple()
+                    ->searchable()
+                    ->preload(),
 
                 Tables\Filters\Filter::make('unread')
                     ->label(__('filament-communicate::default.tables.filters.unread.label'))
@@ -465,6 +500,7 @@ class MessageResource extends Resource
                 'latestApproval.approver',
                 'transfers.transferredBy',
                 'replies',
+                'tags',
             ])
             ->withCount('replies');
 

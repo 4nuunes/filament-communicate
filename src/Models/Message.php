@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -83,6 +84,19 @@ class Message extends Model
     public function transfers(): HasMany
     {
         return $this->hasMany(MessageTransfer::class);
+    }
+
+    /**
+     * Relacionamento many-to-many com tags
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Tag::class,
+            'message_tags',
+            'message_id',
+            'tag_id'
+        )->withTimestamps();
     }
 
     /**
@@ -285,7 +299,6 @@ class Message extends Model
         return $this->code;
     }
 
-    // ✅ Atualizar o método boot
     protected static function boot()
     {
         parent::boot();
