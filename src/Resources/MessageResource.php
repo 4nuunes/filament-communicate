@@ -4,21 +4,27 @@ declare(strict_types=1);
 
 namespace Alessandronuunes\FilamentCommunicate\Resources;
 
-use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
-use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
-use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
-use Alessandronuunes\FilamentCommunicate\Models\Message;
-use Alessandronuunes\FilamentCommunicate\Resources\MessageResource\Pages;
-use Alessandronuunes\FilamentCommunicate\Services\MessageService;
-use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
+use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Auth;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Actions\Action;
+use TomatoPHP\FilamentIcons\Components\IconPicker;
+use Awcodes\Palette\Forms\Components\ColorPickerSelect;
+use Alessandronuunes\FilamentCommunicate\Models\Message;
+use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
+use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
+use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
+use Alessandronuunes\FilamentCommunicate\Services\MessageService;
+use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
+use Alessandronuunes\FilamentCommunicate\Resources\MessageResource\Pages;
 
 class MessageResource extends Resource
 {
@@ -80,8 +86,10 @@ class MessageResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make(__('filament-communicate::default.forms.message.sections.content'))
-                    ->columns(4)
+                Grid::make(12)->schema([
+                     Forms\Components\Section::make(__('filament-communicate::default.forms.message.sections.content'))
+                    
+                    ->columnSpan(8)
                     ->schema([
                         Forms\Components\Select::make('recipient_id')
                             ->label(__('filament-communicate::default.forms.message.fields.recipient_id.label'))
@@ -107,72 +115,91 @@ class MessageResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
-
-                        Forms\Components\RichEditor::make('content')
-                            ->label(__('filament-communicate::default.forms.message.fields.content.label'))
-                            ->required()
-                            ->columnSpanFull()
-                            ->toolbarButtons([
-                                'bold',
-                                'italic',
-                                'underline',
-                                'bulletList',
-                                'orderedList',
-                                'link',
-                                'undo',
-                                'redo',
-                            ]),
-
-                        Forms\Components\FileUpload::make('attachments')
-                            ->label(__('filament-communicate::default.forms.message.fields.attachments.label'))
-                            ->multiple()
-                            ->maxFiles(config('filament-communicate.storage.max_files', 5))
-                            ->maxSize(config('filament-communicate.storage.max_file_size', 10240))
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                                'image/*',
-                                'application/msword',
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                            ])
-                            ->columnSpanFull(),
-                        Forms\Components\Select::make('message_type_id')
-                            ->label(__('filament-communicate::default.forms.message.fields.message_type_id.label'))
-                            ->relationship('messageType', 'name')
-                            ->required()
-                            ->searchable()
-
-                            ->columnSpan(2)
-                            ->preload(),
-
-                        Forms\Components\Select::make('priority')
-                            ->label(__('filament-communicate::default.forms.message.fields.priority.label'))
-                            ->options(MessagePriority::class)
-                            ->default(MessagePriority::NORMAL)
-                            ->columnSpan(2)
-                            ->required(),
-
-                        Forms\Components\Select::make('tags')
-                            ->label(__('filament-communicate::default.forms.message.fields.tags.label'))
-                            ->relationship('tags', 'name')
-                            ->multiple()
-                            ->searchable()
-                            ->preload()
-                            ->columnSpan(2)
-                            ->getOptionLabelFromRecordUsing(fn ($record): string => "{$record->name} (★{$record->rating})")
-                            ->optionsLimit(50)
-                            ->helperText(__('filament-communicate::default.forms.message.fields.tags.helper_text')),
-
-                        Forms\Components\Toggle::make('save_as_draft')
-                            ->label(__('filament-communicate::default.forms.message.fields.save_as_draft.label'))
-                            ->helperText(__('filament-communicate::default.forms.message.fields.save_as_draft.helper_text'))
-                            ->default(false)
-                            ->columnSpanFull()
-                            ->afterStateHydrated(function (Forms\Components\Toggle $component, $get) {
-                                if ($get('status') === MessageStatus::DRAFT->value) {
-                                    $component->state(true);
-                                }
-                            })->live(),
+                    Forms\Components\RichEditor::make('content')
+                        ->label(__('filament-communicate::default.forms.message.fields.content.label'))
+                        ->required()
+                        ->columnSpanFull()
+                        ->toolbarButtons([
+                            'bold',
+                            'italic',
+                            'underline',
+                            'bulletList',
+                            'orderedList',
+                            'link',
+                            'undo',
+                            'redo',
+                        ]),
+                    Forms\Components\FileUpload::make('attachments')
+                        ->label(__('filament-communicate::default.forms.message.fields.attachments.label'))
+                        ->multiple()
+                        ->maxFiles(config('filament-communicate.storage.max_files', 5))
+                        ->maxSize(config('filament-communicate.storage.max_file_size', 10240))
+                        ->acceptedFileTypes([
+                            'application/pdf',
+                            'image/*',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        ])
+                        ->columnSpanFull(),
                     ]),
+                    // Segunda seção: Configurações e metadados (30% da tela)
+                    Forms\Components\Section::make('Configurações')
+                        ->columnSpan(4)
+                        ->schema([
+                            Forms\Components\Select::make('message_type_id')
+                                ->label(__('filament-communicate::default.forms.message.fields.message_type_id.label'))
+                                ->relationship('messageType', 'name')
+                                ->required()
+                                ->searchable()
+                                ->columnSpan(2)
+                                ->preload(),
+                            Forms\Components\Select::make('priority')
+                                ->label(__('filament-communicate::default.forms.message.fields.priority.label'))
+                                ->options(MessagePriority::class)
+                                ->default(MessagePriority::NORMAL)
+                                ->columnSpan(2)
+                                ->required(),
+                            Forms\Components\Select::make('tags')
+                                ->label(__('filament-communicate::default.forms.message.fields.tags.label'))
+                                ->relationship('tags', 'name')
+                                ->multiple()
+                                ->searchable()
+                                ->preload()
+                                ->columnSpan(2)
+                                ->optionsLimit(50)
+                                ->createOptionAction(fn (Action $action) => $action->modalWidth('md'))
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label(__('filament-communicate::default.forms.message.fields.tags.name.label')),
+                                    ColorPickerSelect::make('color')
+                                        ->label(__('filament-communicate::default.forms.message.fields.tags.color.label'))
+                                        ->colors(fn () => Color::all())
+                                        ->columnSpanFull()
+                                        ->storeAsKey(),
+                                    IconPicker::make('icon')
+                                        ->columnSpanFull()
+                                        ->label(__('filament-communicate::default.forms.message.fields.tags.icon.label'))
+                                        ->hintAction(
+                                            Forms\Components\Actions\Action::make('viewIcon')
+                                                ->label(__('filament-communicate::default.forms.message.fields.tags.icon.hint'))
+                                                ->link()
+                                                ->url('https://heroicons.com/', true)
+                                        )
+                                        ->default('heroicon-o-academic-cap')
+                                        ->required(),
+                                ]),
+                            Forms\Components\Toggle::make('save_as_draft')
+                                ->label(__('filament-communicate::default.forms.message.fields.save_as_draft.label'))
+                                ->helperText(__('filament-communicate::default.forms.message.fields.save_as_draft.helper_text'))
+                                ->default(false)
+                                ->columnSpanFull()
+                                ->afterStateHydrated(function (Forms\Components\Toggle $component, $get) {
+                                    if ($get('status') === MessageStatus::DRAFT->value) {
+                                        $component->state(true);
+                                    }
+                                })->live(),
+                        ]),
+                ])
             ]);
     }
 
@@ -272,7 +299,22 @@ class MessageResource extends Resource
                     })
                     ->badge()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('tags.name')
+                    ->label(__('filament-communicate::default.tables.columns.tags'))
+                    ->badge()
+                    ->color(fn ($record, $state) => $record->color ?? 'gray')
+                    ->formatStateUsing(fn ($state, $record) => $state.' (★'.$record->rating.')')
+                    ->separator(', ')
+                    ->limit(3)
+                    ->tooltip(function ($record) {
+                        $tags = $record->tags;
+                        if ($tags->count() <= 3) {
+                            return null;
+                        }
 
+                        return $tags->pluck('name')->join(', ');
+                    })
+                    ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('filament-communicate::default.tables.columns.created_at'))
                     ->dateTime('d/m/Y H:i')
@@ -305,24 +347,7 @@ class MessageResource extends Resource
                     ->badge()
                     ->color('info')
                     ->toggleable(isToggledHiddenByDefault: true),
-
-                // Tags da mensagem
-                Tables\Columns\TextColumn::make('tags.name')
-                    ->label(__('filament-communicate::default.tables.columns.tags'))
-                    ->badge()
-                    ->color(fn ($record, $state) => $record->color ?? 'gray')
-                    ->formatStateUsing(fn ($state, $record) => $state.' (★'.$record->rating.')')
-                    ->separator(', ')
-                    ->limit(3)
-                    ->tooltip(function ($record) {
-                        $tags = $record->tags;
-                        if ($tags->count() <= 3) {
-                            return null;
-                        }
-
-                        return $tags->pluck('name')->join(', ');
-                    })
-                    ->toggleable(isToggledHiddenByDefault: false),
+                
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -366,8 +391,6 @@ class MessageResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-
-                    Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make()
                         ->visible(fn ($record) => $record->status === MessageStatus::DRAFT),
                     Tables\Actions\Action::make('approve')

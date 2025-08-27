@@ -1,5 +1,7 @@
 @php
     use Illuminate\Support\Facades\Storage;
+    use Illuminate\Support\Arr;
+    use Filament\Support\Colors\Color;
     
     $messages = $getRecord()->getThreadMessages();
     $currentUser = auth()->user();
@@ -55,14 +57,26 @@
                                     <x-filament::badge color="info" icon="heroicon-o-tag">
                                         {{ $message->messageType->name }}
                                     </x-filament::badge>
-                            @endif
-
-                            @if($isMainMessage && $message->priority)
-                                <x-filament::badge :color="$message->priority->getColor()" :icon="$message->priority->getIcon()">
-                                    {{ $message->priority->getLabel() }}
-                                </x-filament::badge>
-                            @endif
-                            </div>
+                                @endif
+                                
+                                @if($isMainMessage && $message->priority)
+                                    <x-filament::badge :color="$message->priority->getColor()" :icon="$message->priority->getIcon()">
+                                        {{ $message->priority->getLabel() }}
+                                    </x-filament::badge>
+                                @endif
+                                
+                                <!-- Tags da mensagem -->
+                                @if($isMainMessage && $message->tags && $message->tags->isNotEmpty())
+                                    @foreach($message->tags as $tag)
+                                        <x-filament::badge 
+                                            :color="Arr::get(Color::all(), $tag->color)"
+                                            :icon="$tag->icon"
+                                        >
+                                            {{ $tag->name }}
+                                        </x-filament::badge>
+                                    @endforeach
+                                @endif
+                                </div>
                         </div>
                     </div>
 

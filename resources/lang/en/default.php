@@ -13,6 +13,10 @@ return [
             'label' => 'Message types',
             'group' => 'Settings',
         ],
+        'tag_resource' => [
+            'label' => 'Tags',
+            'group' => 'Settings',
+        ],
     ],
 
     // Model labels
@@ -24,6 +28,10 @@ return [
         'message_type' => [
             'label' => 'Message Type',
             'plural_label' => 'Message Types',
+        ],
+        'tag' => [
+            'label' => 'Tag',
+            'plural_label' => 'Tags',
         ],
     ],
 
@@ -59,36 +67,46 @@ return [
                     'label' => 'Save as Draft',
                     'helper_text' => 'Enable to save as draft, disable to send immediately',
                 ],
+                'tags' => [
+                    'label' => 'Tags',
+                    'color' => [
+                        'label' => 'Color',
+                    ],
+                    'icon' => [
+                        'label' => 'Icon',
+                        'hint' => 'View Icons',
+                    ],
+                ],
             ],
         ],
         'message_type' => [
+            'sections' => [
+                'basic_info' => 'Basic Information',
+                'appearance' => 'Appearance',
+                'settings' => 'Settings',
+            ],
             'fields' => [
                 'name' => [
                     'label' => 'Name',
                 ],
+                'slug' => [
+                    'label' => 'Slug',
+                    'helper_text' => 'URL-friendly version of the name',
+                ],
+                'color' => [
+                    'label' => 'Color',
+                ],
+                'icon' => [
+                    'label' => 'Icon',
+                ],
                 'description' => [
                     'label' => 'Description',
                 ],
-                'requires_approval' => [
-                    'label' => 'Requires Approval',
-                ],
-                'approver_role_id' => [
-                    'label' => 'Approver Role',
-                ],
-                'approver_role' => [
-                    'label' => 'Role Approver',
-                ],
-                'custom_fields' => [
-                    'label' => 'Custom Fields',
-                    'key_label' => 'Field',
-                    'value_label' => 'Default Value',
-                    'add_action_label' => 'Add Field',
+                'rating' => [
+                    'label' => 'Rating',
                 ],
                 'is_active' => [
                     'label' => 'Active',
-                ],
-                'sort_order' => [
-                    'label' => 'Display Order',
                 ],
             ],
         ],
@@ -119,6 +137,37 @@ return [
                 'label' => 'Reply Content',
             ],
         ],
+        'tag' => [
+        'sections' => [
+            'basic_info' => 'Basic Information',
+            'appearance' => 'Appearance',
+            'settings' => 'Settings',
+        ],
+        'fields' => [
+            'name' => [
+                'label' => 'Name',
+            ],
+            'slug' => [
+                'label' => 'Slug',
+                'helper_text' => 'URL-friendly version of the name',
+            ],
+            'color' => [
+                'label' => 'Color',
+            ],
+            'icon' => [
+                'label' => 'Icon',
+            ],
+            'description' => [
+                'label' => 'Description',
+            ],
+            'rating' => [
+                'label' => 'Rating',
+            ],
+            'is_active' => [
+                'label' => 'Active',
+            ],
+        ],
+    ],
     ],
 
     // Tables
@@ -141,6 +190,13 @@ return [
             'requires_approval' => 'Approval',
             'messages_count' => 'Messages',
             'sort_order' => 'Order',
+            'slug' => 'Slug',
+            'description' => 'Description',
+            'color' => 'Color',
+            'rating' => 'Rating',
+            'updated_at' => 'Updated at',
+            'deleted_at' => 'Deleted at',
+            'tags' => 'Tags',
         ],
         'placeholders' => [
             'not_read' => 'Not read',
@@ -180,11 +236,30 @@ return [
                 'true_label' => 'Requires Approval',
                 'false_label' => 'No Approval Required',
             ],
+            'is_active' => [
+                'label' => 'Status',
+                'placeholder' => 'All',
+                'true' => 'Active',
+                'false' => 'Inactive',
+            ],
+            'rating' => [
+                'label' => 'Rating',
+            ],
+            'high_priority' => [
+                'label' => 'High Priority',
+            ],
+            'with_messages' => [
+                'label' => 'With Messages',
+            ],
         ],
     ],
 
     // Actions
     'actions' => [
+        'create_tag' => 'New Tag',
+        'activate' => [
+            'label' => 'Activate',
+        ],
         'create_message_type' => 'New Message Type',
         'create_message' => 'New Message',
         'send_message' => 'Send Message',
@@ -192,6 +267,9 @@ return [
             'label' => 'Approve',
             'modal_heading' => 'Approve Message',
             'modal_description' => 'Are you sure you want to approve this message?',
+        ],
+        'deactivate' => [
+            'label' => 'Deactivate',
         ],
         'reject' => [
             'label' => 'Reject',
@@ -237,6 +315,18 @@ return [
             'read' => 'Read',
             'archived' => 'Archived',
             'new_message' => 'New Message',
+        ],
+        'tag_rating' => [
+            'very_low' => 'Very Low',
+            'low' => 'Low',
+            'below_average' => 'Below Average',
+            'below_normal' => 'Below Normal',
+            'normal' => 'Normal',
+            'above_normal' => 'Above Normal',
+            'above_average' => 'Above Average',
+            'high' => 'High',
+            'very_high' => 'Very High',
+            'critical' => 'Critical',
         ],
     ],
 

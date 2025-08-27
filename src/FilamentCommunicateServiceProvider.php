@@ -27,6 +27,8 @@ class FilamentCommunicateServiceProvider extends PackageServiceProvider
                 'create_messages_table',
                 'create_message_approvals_table',
                 'create_message_transfers_table',
+                'create_tags_table',
+                'create_message_tags_table',
             ])
             ->hasViews();
     }

@@ -13,6 +13,10 @@ return [
             'label' => 'Tipos de mensagens',
             'group' => 'Configurações',
         ],
+        'tag_resource' => [
+            'label' => 'Tags',
+            'group' => 'Configurações',
+        ],
     ],
 
     // Labels de modelo
@@ -24,6 +28,10 @@ return [
         'message_type' => [
             'label' => 'Tipo de Mensagem',
             'plural_label' => 'Tipos de Mensagem',
+        ],
+        'tag' => [
+            'label' => 'Tag',
+            'plural_label' => 'Tags',
         ],
     ],
 
@@ -59,12 +67,31 @@ return [
                     'label' => 'Salvar como Rascunho',
                     'helper_text' => 'Ative para salvar como rascunho, desative para enviar imediatamente',
                 ],
+                'tags' => [
+                    'label' => 'Tags',
+                    'color' => [
+                        'label' => 'Cor',
+                    ],
+                    'icon' => [
+                        'label' => 'Ícone',
+                        'hint' => 'Ver Ícones',
+                    ],
+                ],
             ],
         ],
         'message_type' => [
+            'sections' => [
+                'basic_info' => 'Informações Básicas',
+                'appearance' => 'Aparência',
+                'settings' => 'Configurações',
+            ],
             'fields' => [
                 'name' => [
                     'label' => 'Nome',
+                ],
+                'slug' => [
+                    'label' => 'Slug',
+                    'helper_text' => 'Versão amigável para URL do nome',
                 ],
                 'description' => [
                     'label' => 'Descrição',
@@ -78,7 +105,6 @@ return [
                 'approver_role_id' => [
                     'label' => 'Papel Aprovador',
                 ],
-
                 'custom_fields' => [
                     'label' => 'Campos Customizados',
                     'key_label' => 'Campo',
@@ -89,7 +115,7 @@ return [
                     'label' => 'Ativo',
                 ],
                 'sort_order' => [
-                    'label' => 'Ordem de Exibição',
+                    'label' => 'Ordem de Classificação',
                 ],
             ],
         ],
@@ -120,6 +146,37 @@ return [
                 'label' => 'Conteúdo da Resposta',
             ],
         ],
+        'tag' => [
+            'sections' => [
+                'basic_info' => 'Informações Básicas',
+                'appearance' => 'Aparência',
+                'settings' => 'Configurações',
+            ],
+            'fields' => [
+                'name' => [
+                    'label' => 'Nome',
+                ],
+                'slug' => [
+                    'label' => 'Slug',
+                    'helper_text' => 'Versão amigável para URL do nome',
+                ],
+                'color' => [
+                    'label' => 'Cor',
+                ],
+                'icon' => [
+                    'label' => 'Ícone',
+                ],
+                'description' => [
+                    'label' => 'Descrição',
+                ],
+                'rating' => [
+                    'label' => 'Classificação',
+                ],
+                'is_active' => [
+                    'label' => 'Ativo',
+                ],
+            ],
+        ],
     ],
 
     // Tabelas
@@ -142,6 +199,13 @@ return [
             'requires_approval' => 'Aprovação',
             'messages_count' => 'Mensagens',
             'sort_order' => 'Ordem',
+            'slug' => 'Slug',
+            'description' => 'Descrição',
+            'color' => 'Cor',
+            'rating' => 'Classificação',
+            'updated_at' => 'Atualizada em',
+            'deleted_at' => 'Excluída em',
+            'tags' => 'Tags',
         ],
         'placeholders' => [
             'not_read' => 'Não lida',
@@ -181,15 +245,36 @@ return [
                 'true_label' => 'Requer Aprovação',
                 'false_label' => 'Não Requer',
             ],
+            'is_active' => [
+                'label' => 'Status',
+                'placeholder' => 'Todos',
+                'true' => 'Ativos',
+                'false' => 'Inativos',
+            ],
+            'rating' => [
+                'label' => 'Classificação',
+            ],
+            'high_priority' => [
+                'label' => 'Alta Prioridade',
+            ],
+            'with_messages' => [
+                'label' => 'Com Mensagens',
+            ],
         ],
     ],
 
     // Ações
     'actions' => [
-
         'create_message_type' => 'Novo Tipo',
         'create_message' => 'Nova Mensagem',
+        'create_tag' => 'Nova Tag',
         'send_message' => 'Enviar Mensagem',
+        'activate' => [
+            'label' => 'Ativar',
+        ],
+        'deactivate' => [
+            'label' => 'Desativar',
+        ],
         'approve' => [
             'label' => 'Aprovar',
             'modal_heading' => 'Aprovar Mensagem',
@@ -239,6 +324,18 @@ return [
             'read' => 'Lida',
             'archived' => 'Arquivada',
             'new_message' => 'Nova Mensagem',
+        ],
+        'tag_rating' => [
+            'very_low' => 'Muito Baixo',
+            'low' => 'Baixo',
+            'below_average' => 'Abaixo da Média',
+            'below_normal' => 'Abaixo do Normal',
+            'normal' => 'Normal',
+            'above_normal' => 'Acima do Normal',
+            'above_average' => 'Acima da Média',
+            'high' => 'Alto',
+            'very_high' => 'Muito Alto',
+            'critical' => 'Crítico',
         ],
     ],
 

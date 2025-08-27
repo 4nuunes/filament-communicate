@@ -16,19 +16,7 @@ class ListTags extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label(__('filament-communicate::default.actions.create_tag.label')),
-        ];
-    }
-
-    public function getTitle(): string
-    {
-        return __('filament-communicate::default.pages.tags.list.title');
-    }
-
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            // Aqui podem ser adicionados widgets de estatísticas no futuro
+                ->label(__('filament-communicate::default.actions.create_tag')),
         ];
     }
 }

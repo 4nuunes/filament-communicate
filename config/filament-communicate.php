@@ -143,13 +143,18 @@ return [
             'sort' => 40,
             'icon' => 'heroicon-o-envelope',
         ],
-
-        // Configurações para MessageTypeResource
         'message_type_resource' => [
             'group' => 'Comunicação',
-            'sort' => 13,
+            'sort' => 45,
             'icon' => 'heroicon-o-rectangle-group',
             'label' => 'Tipos de mensagens',
         ],
+        'tag_resource' => [
+            'group' => 'Comunicação',
+            'sort' => 50,
+            'icon' => 'heroicon-o-tag',
+            'label' => 'Tags',
+        ],
+        
     ],
 ];

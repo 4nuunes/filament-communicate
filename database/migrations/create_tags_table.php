@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('icon', 50)->nullable();
             $table->integer('rating')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->integer('sort_order')->default(0);
             $table->timestamps();
             $table->softDeletes();
 

@@ -17,10 +17,7 @@ return new class extends Migration
             $table->foreignId('tag_id')->constrained('tags')->onDelete('cascade');
             $table->timestamps();
 
-            // Constraint de unicidade para evitar duplicatas
             $table->unique(['message_id', 'tag_id']);
-
-            // Índices para performance
             $table->index('message_id');
             $table->index('tag_id');
         });

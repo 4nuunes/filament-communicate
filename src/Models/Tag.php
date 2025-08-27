@@ -2,13 +2,17 @@
 
 namespace Alessandronuunes\FilamentCommunicate\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Alessandronuunes\FilamentCommunicate\Enums\TagRating;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Alessandronuunes\FilamentCommunicate\Observers\TagObserver;
 
+#[ObservedBy([TagObserver::class])]
 class Tag extends Model
 {
     use HasFactory, SoftDeletes;
@@ -32,7 +36,7 @@ class Tag extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
-        'rating' => 'integer',
+        'rating' => TagRating::class,
         'sort_order' => 'integer',
     ];
 
