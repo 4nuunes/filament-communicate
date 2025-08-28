@@ -42,9 +42,11 @@ class Message extends Model
         'approved_at',
         'rejected_at',
         'delivered_at',
+        'batch_recipients',
     ];
 
     protected $casts = [
+        'batch_recipients' => 'array',
         'custom_data' => 'array',
         'attachments' => 'array', // Novo cast
         'status' => MessageStatus::class,
@@ -289,7 +291,6 @@ class Message extends Model
             );
         }
 
-        // Construir código: PREFIX-YYYYMMDD-HHMMSS
         return $prefix.$separator.$timestamp;
     }
 
@@ -299,16 +300,14 @@ class Message extends Model
         return $this->code;
     }
 
-    protected static function boot()
+    // Método helper
+    public function getBatchRecipients(): array
     {
-        parent::boot();
+        return $this->batch_recipients ?? [];
+    }
 
-        static::creating(function ($message) {
-            // Só gerar código automático se não for uma resposta e não tiver código
-            if (! $message->parent_id && ! $message->code) {
-                $message->code = static::generateCode();
-            }
-            // Para respostas, o código será definido manualmente no createReply
-        });
+    public function hasBatchRecipients(): bool
+    {
+        return !empty($this->batch_recipients);
     }
 }

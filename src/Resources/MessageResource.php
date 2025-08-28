@@ -25,7 +25,7 @@ use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
 use Alessandronuunes\FilamentCommunicate\Services\MessageService;
 use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
 use Alessandronuunes\FilamentCommunicate\Resources\MessageResource\Pages;
-
+use Spatie\Permission\Models\Role;
 class MessageResource extends Resource
 {
     use HasUserModel;
@@ -91,11 +91,16 @@ class MessageResource extends Resource
                     
                     ->columnSpan(8)
                     ->schema([
-                        Forms\Components\Select::make('recipient_id')
+                        Forms\Components\Select::make('batch_recipients')
                             ->label(__('filament-communicate::default.forms.message.fields.recipient_id.label'))
-                            ->relationship('recipient', 'name', function (Builder $query) {
-                                $query->where('id', '!=', Auth::id());
+                            ->options(function () {
+                                    $resource = new static();
+                                    $userModel = $resource->getUserModel();
+                                    return $userModel::where('id', '!=', auth()->id())
+                                        ->where('id', '!=', Auth::id())
+                                        ->pluck('name', 'id');
                             })
+                            ->multiple()
                             ->required()
                             ->searchable()
                             ->preload()
@@ -146,19 +151,53 @@ class MessageResource extends Resource
                     Forms\Components\Section::make('Configurações')
                         ->columnSpan(4)
                         ->schema([
-                            Forms\Components\Select::make('message_type_id')
-                                ->label(__('filament-communicate::default.forms.message.fields.message_type_id.label'))
-                                ->relationship('messageType', 'name')
-                                ->required()
-                                ->searchable()
-                                ->columnSpan(2)
-                                ->preload(),
                             Forms\Components\Select::make('priority')
                                 ->label(__('filament-communicate::default.forms.message.fields.priority.label'))
                                 ->options(MessagePriority::class)
                                 ->default(MessagePriority::NORMAL)
                                 ->columnSpan(2)
                                 ->required(),
+                            Forms\Components\Select::make('message_type_id')
+                                ->label(__('filament-communicate::default.forms.message.fields.message_type_id.label'))
+                                ->relationship('messageType', 'name')
+                                ->required()
+                                ->searchable()
+                                ->columnSpan(2)
+                                ->preload()
+                                ->createOptionAction(fn (Action $action) => $action->modalWidth('md')->modalFooterActionsAlignment(Alignment::End))
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label(__('filament-communicate::default.forms.message_type.fields.name.label'))
+                                        ->required()
+                                        ->unique(ignoreRecord: true)
+                                        ->columnSpanFull()
+                                        ->maxLength(255)
+                                        ->live(onBlur: true),
+                                    Forms\Components\Textarea::make('description')
+                                        ->label(__('filament-communicate::default.forms.message_type.fields.description.label'))
+                                        ->rows(3)
+                                        ->columnSpanFull(),
+                                    Forms\Components\TextInput::make('sort_order')
+                                        ->label(__('filament-communicate::default.forms.message_type.fields.sort_order.label'))
+                                        ->numeric()
+                                        ->default(0)
+                                        ->columnSpanFull()
+                                        ->minValue(0),
+                                    Forms\Components\Toggle::make('is_active')
+                                        ->label(__('filament-communicate::default.forms.message_type.fields.is_active.label'))
+                                        ->default(true),
+                                    Forms\Components\Toggle::make('requires_approval')
+                                        ->label(__('filament-communicate::default.forms.message_type.fields.requires_approval.label'))
+                                        ->default(false)
+                                        ->live(),
+                                    Forms\Components\Select::make('approver_role_id')
+                                        ->label(__('filament-communicate::default.forms.message_type.fields.approver_role.label'))
+                                        ->options(Role::pluck('name', 'id'))
+                                        ->columnSpanFull()
+                                        ->searchable()
+                                        ->preload()
+                                        ->visible(fn (Forms\Get $get): bool => $get('requires_approval') ?? false),
+                                ]),
                             Forms\Components\Select::make('tags')
                                 ->label(__('filament-communicate::default.forms.message.fields.tags.label'))
                                 ->relationship('tags', 'name')
@@ -167,7 +206,7 @@ class MessageResource extends Resource
                                 ->preload()
                                 ->columnSpan(2)
                                 ->optionsLimit(50)
-                                ->createOptionAction(fn (Action $action) => $action->modalWidth('md'))
+                                ->createOptionAction(fn (Action $action) => $action->modalWidth('md')->modalFooterActionsAlignment(Alignment::End))
                                 ->createOptionForm([
                                     Forms\Components\TextInput::make('name')
                                         ->label(__('filament-communicate::default.forms.message.fields.tags.name.label')),
@@ -206,6 +245,7 @@ class MessageResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('15s') // Atualiza a tabela a cada 5 segundos
             ->emptyStateActions([])
             ->columns([
                 Tables\Columns\TextColumn::make('subject')
