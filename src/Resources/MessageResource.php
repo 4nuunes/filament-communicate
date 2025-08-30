@@ -518,18 +518,127 @@ class MessageResource extends Resource
                                 ->markAsRead($record, Auth::user());
                         }),
 
-                    Tables\Actions\DeleteAction::make()
-                        ->authorize('delete'),
+                    // Substituir DeleteAction por ações de arquivamento
+                    Tables\Actions\Action::make('archive')
+                        ->label(__('filament-communicate::default.actions.archive.label'))
+                        ->icon('heroicon-o-archive-box')
+                        ->color('warning')
+                        ->visible(function (Message $record) {
+                            $user = Auth::user();
+                            // Mostrar se o usuário é remetente ou destinatário e a mensagem não está arquivada para ele
+                            return ($record->sender_id === $user->id && !$record->sender_hidden_at) ||
+                                   ($record->recipient_id === $user->id && !$record->recipient_hidden_at);
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading(__('filament-communicate::default.actions.archive.modal.heading'))
+                        ->modalDescription(__('filament-communicate::default.actions.archive.modal.description'))
+                        ->form([
+                            Forms\Components\Textarea::make('reason')
+                                ->label(__('filament-communicate::default.forms.archive.reason.label'))
+                                ->placeholder(__('filament-communicate::default.forms.archive.reason.placeholder'))
+                                ->maxLength(255),
+                        ])
+                        ->action(function (Message $record, array $data) {
+                            $user = Auth::user();
+                            $reason = $data['reason'] ?? 'Arquivado pelo usuário';
+                            
+                            if ($record->sender_id === $user->id && !$record->sender_hidden_at) {
+                                $record->update([
+                                    'sender_hidden_at' => now(),
+                                    'sender_hidden_reason' => $reason,
+                                ]);
+                            } elseif ($record->recipient_id === $user->id && !$record->recipient_hidden_at) {
+                                $record->update([
+                                    'recipient_hidden_at' => now(),
+                                    'recipient_hidden_reason' => $reason,
+                                ]);
+                            }
+                        }),
+
+                    Tables\Actions\Action::make('unarchive')
+                        ->label(__('filament-communicate::default.actions.unarchive.label'))
+                        ->icon('heroicon-o-archive-box-arrow-down')
+                        ->color('success')
+                        ->visible(function (Message $record) {
+                            $user = Auth::user();
+                            // Mostrar se o usuário é remetente ou destinatário e a mensagem está arquivada para ele
+                            return ($record->sender_id === $user->id && $record->sender_hidden_at) ||
+                                   ($record->recipient_id === $user->id && $record->recipient_hidden_at);
+                        })
+                        ->action(function (Message $record) {
+                            $user = Auth::user();
+                            
+                            if ($record->sender_id === $user->id && $record->sender_hidden_at) {
+                                $record->update([
+                                    'sender_hidden_at' => null,
+                                    'sender_hidden_reason' => null,
+                                ]);
+                            } elseif ($record->recipient_id === $user->id && $record->recipient_hidden_at) {
+                                $record->update([
+                                    'recipient_hidden_at' => null,
+                                    'recipient_hidden_reason' => null,
+                                ]);
+                            }
+                        }),
                 ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->authorize('deleteAny'),
-                    Tables\Actions\RestoreBulkAction::make()
-                        ->authorize('restoreAny'),
-                    Tables\Actions\ForceDeleteBulkAction::make()
-                        ->authorize('forceDeleteAny'),
+                    // Ação para arquivar em lote
+                    Tables\Actions\BulkAction::make('archive_bulk')
+                        ->label(__('filament-communicate::default.actions.archive_bulk.label'))
+                        ->icon('heroicon-o-archive-box')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading(__('filament-communicate::default.actions.archive_bulk.modal.heading'))
+                        ->modalDescription(__('filament-communicate::default.actions.archive_bulk.modal.description'))
+                        ->form([
+                            Forms\Components\Textarea::make('reason')
+                                ->label(__('filament-communicate::default.forms.archive.reason.label'))
+                                ->placeholder(__('filament-communicate::default.forms.archive.reason.placeholder'))
+                                ->maxLength(255),
+                        ])
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                            $user = Auth::user();
+                            $reason = $data['reason'] ?? 'Arquivado em lote pelo usuário';
+                            
+                            foreach ($records as $record) {
+                                if ($record->sender_id === $user->id && !$record->sender_hidden_at) {
+                                    $record->update([
+                                        'sender_hidden_at' => now(),
+                                        'sender_hidden_reason' => $reason,
+                                    ]);
+                                } elseif ($record->recipient_id === $user->id && !$record->recipient_hidden_at) {
+                                    $record->update([
+                                        'recipient_hidden_at' => now(),
+                                        'recipient_hidden_reason' => $reason,
+                                    ]);
+                                }
+                            }
+                        }),
+
+                    // Ação para desarquivar em lote
+                    Tables\Actions\BulkAction::make('unarchive_bulk')
+                        ->label(__('filament-communicate::default.actions.unarchive_bulk.label'))
+                        ->icon('heroicon-o-archive-box-arrow-down')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $user = Auth::user();
+                            
+                            foreach ($records as $record) {
+                                if ($record->sender_id === $user->id && $record->sender_hidden_at) {
+                                    $record->update([
+                                        'sender_hidden_at' => null,
+                                        'sender_hidden_reason' => null,
+                                    ]);
+                                } elseif ($record->recipient_id === $user->id && $record->recipient_hidden_at) {
+                                    $record->update([
+                                        'recipient_hidden_at' => null,
+                                        'recipient_hidden_reason' => null,
+                                    ]);
+                                }
+                            }
+                        }),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
@@ -565,7 +674,9 @@ class MessageResource extends Resource
                 'replies',
                 'tags',
             ])
-            ->withCount('replies');
+            ->withCount('replies')
+            // Aplicar scope de visibilidade para o usuário atual
+            ->visibleForUser(Auth::user());
 
         // Aplicar filtros baseados nas permissões do usuário
         return MessagePermissions::applyQueryFilters($query, Auth::user());

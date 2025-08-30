@@ -43,18 +43,24 @@ class Message extends Model
         'rejected_at',
         'delivered_at',
         'batch_recipients',
+        'sender_hidden_at',
+        'recipient_hidden_at',
+        'sender_hidden_reason',
+        'recipient_hidden_reason',
     ];
 
     protected $casts = [
         'batch_recipients' => 'array',
         'custom_data' => 'array',
-        'attachments' => 'array', // Novo cast
+        'attachments' => 'array',
         'status' => MessageStatus::class,
         'priority' => MessagePriority::class,
         'read_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'sender_hidden_at' => 'datetime',
+        'recipient_hidden_at' => 'datetime',
     ];
 
     // Relacionamentos
@@ -219,6 +225,25 @@ class Message extends Model
         return $query->where('recipient_id', $user->id)
             ->where('status', MessageStatus::SENT)
             ->whereNull('read_at');
+    }
+
+    /**
+     * Scope para mensagens visíveis para um usuário específico
+     * Filtra mensagens que não foram arquivadas pelo usuário
+     */
+    public function scopeVisibleForUser($query, $user)
+    {
+        return $query->where(function ($q) use ($user) {
+            $q->where(function ($subQuery) use ($user) {
+                // Se o usuário é o remetente, verificar se não arquivou
+                $subQuery->where('sender_id', $user->id)
+                    ->whereNull('sender_hidden_at');
+            })->orWhere(function ($subQuery) use ($user) {
+                // Se o usuário é o destinatário, verificar se não arquivou
+                $subQuery->where('recipient_id', $user->id)
+                    ->whereNull('recipient_hidden_at');
+            });
+        });
     }
 
     /**

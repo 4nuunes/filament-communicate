@@ -124,6 +124,12 @@ return [
                 'label' => 'Motivo (opcional)',
             ],
         ],
+        'archive' => [
+            'reason' => [
+                'label' => 'Motivo do Arquivamento (Opcional)',
+                'placeholder' => 'Digite o motivo do arquivamento...',
+            ],
+        ],
         'rejection' => [
             'reason' => [
                 'label' => 'Motivo da Rejeição',
@@ -294,6 +300,38 @@ return [
         ],
         'mark_read' => [
             'label' => 'Marcar como Lida',
+        ],
+        'archive' => [
+            'label' => 'Arquivar',
+            'modal' => [
+                'heading' => 'Arquivar Mensagem',
+                'description' => 'Tem certeza que deseja arquivar esta mensagem?',
+                'reason_label' => 'Motivo do Arquivamento (Opcional)',
+                'reason_placeholder' => 'Digite o motivo do arquivamento...',
+            ],
+        ],
+        'unarchive' => [
+            'label' => 'Desarquivar',
+            'modal' => [
+                'heading' => 'Desarquivar Mensagem',
+                'description' => 'Tem certeza que deseja desarquivar esta mensagem?',
+            ],
+        ],
+        'archive_bulk' => [
+            'label' => 'Arquivar Selecionadas',
+            'modal' => [
+                'heading' => 'Arquivar Mensagens',
+                'description' => 'Tem certeza que deseja arquivar as mensagens selecionadas?',
+                'reason_label' => 'Motivo do Arquivamento (Opcional)',
+                'reason_placeholder' => 'Digite o motivo do arquivamento...',
+            ],
+        ],
+        'unarchive_bulk' => [
+            'label' => 'Desarquivar Selecionadas',
+            'modal' => [
+                'heading' => 'Desarquivar Mensagens',
+                'description' => 'Tem certeza que deseja desarquivar as mensagens selecionadas?',
+            ],
         ],
     ],
 

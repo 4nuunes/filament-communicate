@@ -115,6 +115,12 @@ return [
                 'label' => 'Reason (optional)',
             ],
         ],
+        'archive' => [
+            'reason' => [
+                'label' => 'Archive Reason (Optional)',
+                'placeholder' => 'Enter the reason for archiving...',
+            ],
+        ],
         'rejection' => [
             'reason' => [
                 'label' => 'Rejection Reason',
@@ -285,6 +291,38 @@ return [
         ],
         'mark_read' => [
             'label' => 'Mark as Read',
+        ],
+        'archive' => [
+            'label' => 'Archive',
+            'modal' => [
+                'heading' => 'Archive Message',
+                'description' => 'Are you sure you want to archive this message?',
+                'reason_label' => 'Archive Reason (Optional)',
+                'reason_placeholder' => 'Enter the reason for archiving...',
+            ],
+        ],
+        'unarchive' => [
+            'label' => 'Unarchive',
+            'modal' => [
+                'heading' => 'Unarchive Message',
+                'description' => 'Are you sure you want to unarchive this message?',
+            ],
+        ],
+        'archive_bulk' => [
+            'label' => 'Archive Selected',
+            'modal' => [
+                'heading' => 'Archive Messages',
+                'description' => 'Are you sure you want to archive the selected messages?',
+                'reason_label' => 'Archive Reason (Optional)',
+                'reason_placeholder' => 'Enter the reason for archiving...',
+            ],
+        ],
+        'unarchive_bulk' => [
+            'label' => 'Unarchive Selected',
+            'modal' => [
+                'heading' => 'Unarchive Messages',
+                'description' => 'Are you sure you want to unarchive the selected messages?',
+            ],
         ],
     ],
 

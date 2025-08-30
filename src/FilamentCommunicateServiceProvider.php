@@ -30,6 +30,7 @@ class FilamentCommunicateServiceProvider extends PackageServiceProvider
                 'create_tags_table',
                 'create_message_tags_table',
                 'add_batch_recipients_to_messages_table',
+                'add_visibility_fields_to_messages_table'
             ])
             ->hasViews();
     }
