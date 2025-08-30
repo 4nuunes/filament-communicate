@@ -57,7 +57,7 @@ class MessageNotification extends Notification implements ShouldQueue
     {
         $data = $this->getNotificationData();
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($data['title'])
             ->greeting(__('filament-communicate::default.notifications.mail.greeting', ['name' => $notifiable->name]))
             ->line($data['body'])

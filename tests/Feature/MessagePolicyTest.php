@@ -13,7 +13,7 @@ describe('MessagePolicy', function () {
     describe('delete method', function () {
 
         it('allows super admin to delete any message', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $superAdmin = User::factory()->create(['name' => 'Super Admin']);
             $superAdmin->assignRole('super_admin');
             $regularUser = User::factory()->create(['name' => 'Regular User']);
@@ -38,7 +38,7 @@ describe('MessagePolicy', function () {
         });
 
         it('allows supervisor to delete pending messages from other users', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $supervisor = User::factory()->create(['name' => 'Supervisor']);
             $supervisor->assignRole('supervisor');
             $regularUser = User::factory()->create(['name' => 'Regular User']);
@@ -63,7 +63,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies supervisor to delete sent messages from other users', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $supervisor = User::factory()->create(['name' => 'Supervisor']);
             $supervisor->assignRole('supervisor');
             $regularUser = User::factory()->create(['name' => 'Regular User']);
@@ -88,7 +88,7 @@ describe('MessagePolicy', function () {
         });
 
         it('allows user to delete their own draft messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -112,7 +112,7 @@ describe('MessagePolicy', function () {
         });
 
         it('allows user to delete their own pending messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -136,7 +136,7 @@ describe('MessagePolicy', function () {
         });
 
         it('allows user to delete sent/read messages they created without replies', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -161,7 +161,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies user to delete approved messages they created', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -185,7 +185,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies user to delete rejected messages they created', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -209,7 +209,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies user to delete messages from other users', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -233,7 +233,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies user to delete received messages from other users', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -261,7 +261,7 @@ describe('MessagePolicy', function () {
     describe('forceDelete method', function () {
 
         it('allows super admin to force delete any message', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $superAdmin = User::factory()->create(['name' => 'Super Admin']);
             $superAdmin->assignRole('super_admin');
             $regularUser = User::factory()->create(['name' => 'Regular User']);
@@ -287,7 +287,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies supervisor to force delete any message', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $supervisor = User::factory()->create(['name' => 'Supervisor']);
             $supervisor->assignRole('supervisor');
             $regularUser = User::factory()->create(['name' => 'Regular User']);
@@ -313,7 +313,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies regular user to force delete any message', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -341,7 +341,7 @@ describe('MessagePolicy', function () {
     describe('restore method', function () {
 
         it('allows super admin to restore any message', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $superAdmin = User::factory()->create(['name' => 'Super Admin']);
             $superAdmin->assignRole('super_admin');
             $regularUser = User::factory()->create(['name' => 'Regular User']);
@@ -367,7 +367,7 @@ describe('MessagePolicy', function () {
         });
 
         it('allows supervisor to restore any message', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $supervisor = User::factory()->create(['name' => 'Supervisor']);
             $supervisor->assignRole('supervisor');
             $regularUser = User::factory()->create(['name' => 'Regular User']);
@@ -393,7 +393,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies user to restore their own messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -418,7 +418,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies user to restore messages they received', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -443,7 +443,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies user to restore messages from other users', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
             $anotherUser = User::factory()->create(['name' => 'Another User']);
@@ -472,7 +472,7 @@ describe('MessagePolicy', function () {
     describe('deleteAny method', function () {
 
         it('allows super admin to delete any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $superAdmin = User::factory()->create(['name' => 'Super Admin']);
             $superAdmin->assignRole('super_admin');
 
@@ -482,7 +482,7 @@ describe('MessagePolicy', function () {
         });
 
         it('allows supervisor to delete any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $supervisor = User::factory()->create(['name' => 'Supervisor']);
             $supervisor->assignRole('supervisor');
 
@@ -492,7 +492,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies regular user to delete any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
 
@@ -505,7 +505,7 @@ describe('MessagePolicy', function () {
     describe('forceDeleteAny method', function () {
 
         it('allows super admin to force delete any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $superAdmin = User::factory()->create(['name' => 'Super Admin']);
             $superAdmin->assignRole('super_admin');
 
@@ -515,7 +515,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies supervisor to force delete any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $supervisor = User::factory()->create(['name' => 'Supervisor']);
             $supervisor->assignRole('supervisor');
 
@@ -525,7 +525,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies regular user to force delete any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
 
@@ -538,7 +538,7 @@ describe('MessagePolicy', function () {
     describe('restoreAny method', function () {
 
         it('allows super admin to restore any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $superAdmin = User::factory()->create(['name' => 'Super Admin']);
             $superAdmin->assignRole('super_admin');
 
@@ -548,7 +548,7 @@ describe('MessagePolicy', function () {
         });
 
         it('allows supervisor to restore any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $supervisor = User::factory()->create(['name' => 'Supervisor']);
             $supervisor->assignRole('supervisor');
 
@@ -558,7 +558,7 @@ describe('MessagePolicy', function () {
         });
 
         it('denies regular user to restore any messages', function () {
-            $policy = new MessagePolicy;
+            $policy = new MessagePolicy();
             $regularUser = User::factory()->create(['name' => 'Regular User']);
             $regularUser->assignRole('atendente');
 

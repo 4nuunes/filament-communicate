@@ -16,7 +16,10 @@ use Illuminate\Support\Facades\Log;
 
 class ProcessMessageNotification implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 3;
 

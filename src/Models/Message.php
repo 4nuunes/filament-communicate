@@ -333,6 +333,6 @@ class Message extends Model
 
     public function hasBatchRecipients(): bool
     {
-        return !empty($this->batch_recipients);
+        return ! empty($this->batch_recipients);
     }
 }

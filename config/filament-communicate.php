@@ -155,6 +155,6 @@ return [
             'icon' => 'heroicon-o-tag',
             'label' => 'Tags',
         ],
-        
+
     ],
 ];

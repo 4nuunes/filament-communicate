@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 namespace Alessandronuunes\FilamentCommunicate\Enums;
+
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
+
 enum TagRating: int implements HasColor, HasLabel
 {
     case VERY_LOW = 1;
@@ -42,7 +44,7 @@ enum TagRating: int implements HasColor, HasLabel
      */
     public function getSelectLabel(): string
     {
-        return $this->value . ' - ' . $this->getLabel();
+        return $this->value.' - '.$this->getLabel();
     }
 
     /**
@@ -54,6 +56,7 @@ enum TagRating: int implements HasColor, HasLabel
         foreach (self::cases() as $case) {
             $options[$case->value] = $case->getSelectLabel();
         }
+
         return $options;
     }
 

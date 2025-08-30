@@ -28,14 +28,14 @@ it('can render the index list message page', function () {
     expect($indexUrl)->toContain('messages');
 
     // Testar se a página ListMessages pode ser instanciada
-    $listPage = new ListMessages;
+    $listPage = new ListMessages();
     expect($listPage)->toBeInstanceOf(ListMessages::class);
     expect($listPage->getResource())->toBe(MessageResource::class);
 });
 
 it('can render Resource', function () {
     // Teste básico para verificar se o recurso pode ser instanciado
-    $resource = new MessageResource;
+    $resource = new MessageResource();
     expect($resource)->toBeInstanceOf(Filament\Resources\Resource::class);
 });
 

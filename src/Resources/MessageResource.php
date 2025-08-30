@@ -4,28 +4,29 @@ declare(strict_types=1);
 
 namespace Alessandronuunes\FilamentCommunicate\Resources;
 
+use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
+use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
+use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
+use Alessandronuunes\FilamentCommunicate\Models\Message;
+use Alessandronuunes\FilamentCommunicate\Resources\MessageResource\Pages;
+use Alessandronuunes\FilamentCommunicate\Services\MessageService;
+use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
+use Awcodes\Palette\Forms\Components\ColorPickerSelect;
 use Filament\Forms;
-use Filament\Tables;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Support\Colors\Color;
-use Filament\Forms\Components\Grid;
-use Illuminate\Support\Facades\Auth;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Actions\Action;
-use TomatoPHP\FilamentIcons\Components\IconPicker;
-use Awcodes\Palette\Forms\Components\ColorPickerSelect;
-use Alessandronuunes\FilamentCommunicate\Models\Message;
-use Alessandronuunes\FilamentCommunicate\Enums\MessageStatus;
-use Alessandronuunes\FilamentCommunicate\Traits\HasUserModel;
-use Alessandronuunes\FilamentCommunicate\Enums\MessagePriority;
-use Alessandronuunes\FilamentCommunicate\Services\MessageService;
-use Alessandronuunes\FilamentCommunicate\Helpers\MessagePermissions;
-use Alessandronuunes\FilamentCommunicate\Resources\MessageResource\Pages;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use TomatoPHP\FilamentIcons\Components\IconPicker;
+
 class MessageResource extends Resource
 {
     use HasUserModel;
@@ -88,17 +89,18 @@ class MessageResource extends Resource
             ->schema([
                 Grid::make(12)->schema([
                      Forms\Components\Section::make(__('filament-communicate::default.forms.message.sections.content'))
-                    
+
                     ->columnSpan(8)
                     ->schema([
                         Forms\Components\Select::make('batch_recipients')
                             ->label(__('filament-communicate::default.forms.message.fields.recipient_id.label'))
                             ->options(function () {
-                                    $resource = new static();
-                                    $userModel = $resource->getUserModel();
-                                    return $userModel::where('id', '!=', auth()->id())
-                                        ->where('id', '!=', Auth::id())
-                                        ->pluck('name', 'id');
+                                $resource = new static();
+                                $userModel = $resource->getUserModel();
+
+                                return $userModel::where('id', '!=', auth()->id())
+                                    ->where('id', '!=', Auth::id())
+                                    ->pluck('name', 'id');
                             })
                             ->multiple()
                             ->required()
@@ -219,7 +221,7 @@ class MessageResource extends Resource
                                         ->columnSpanFull()
                                         ->label(__('filament-communicate::default.forms.message.fields.tags.icon.label'))
                                         ->hintAction(
-                                            Forms\Components\Actions\Action::make('viewIcon')
+                                            Action::make('viewIcon')
                                                 ->label(__('filament-communicate::default.forms.message.fields.tags.icon.hint'))
                                                 ->link()
                                                 ->url('https://heroicons.com/', true)
@@ -238,7 +240,7 @@ class MessageResource extends Resource
                                     }
                                 })->live(),
                         ]),
-                ])
+                ]),
             ]);
     }
 
@@ -387,7 +389,7 @@ class MessageResource extends Resource
                     ->badge()
                     ->color('info')
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -525,9 +527,10 @@ class MessageResource extends Resource
                         ->color('warning')
                         ->visible(function (Message $record) {
                             $user = Auth::user();
+
                             // Mostrar se o usuário é remetente ou destinatário e a mensagem não está arquivada para ele
-                            return ($record->sender_id === $user->id && !$record->sender_hidden_at) ||
-                                   ($record->recipient_id === $user->id && !$record->recipient_hidden_at);
+                            return ($record->sender_id === $user->id && ! $record->sender_hidden_at) ||
+                                   ($record->recipient_id === $user->id && ! $record->recipient_hidden_at);
                         })
                         ->requiresConfirmation()
                         ->modalHeading(__('filament-communicate::default.actions.archive.modal.heading'))
@@ -541,13 +544,13 @@ class MessageResource extends Resource
                         ->action(function (Message $record, array $data) {
                             $user = Auth::user();
                             $reason = $data['reason'] ?? 'Arquivado pelo usuário';
-                            
-                            if ($record->sender_id === $user->id && !$record->sender_hidden_at) {
+
+                            if ($record->sender_id === $user->id && ! $record->sender_hidden_at) {
                                 $record->update([
                                     'sender_hidden_at' => now(),
                                     'sender_hidden_reason' => $reason,
                                 ]);
-                            } elseif ($record->recipient_id === $user->id && !$record->recipient_hidden_at) {
+                            } elseif ($record->recipient_id === $user->id && ! $record->recipient_hidden_at) {
                                 $record->update([
                                     'recipient_hidden_at' => now(),
                                     'recipient_hidden_reason' => $reason,
@@ -561,13 +564,14 @@ class MessageResource extends Resource
                         ->color('success')
                         ->visible(function (Message $record) {
                             $user = Auth::user();
+
                             // Mostrar se o usuário é remetente ou destinatário e a mensagem está arquivada para ele
                             return ($record->sender_id === $user->id && $record->sender_hidden_at) ||
                                    ($record->recipient_id === $user->id && $record->recipient_hidden_at);
                         })
                         ->action(function (Message $record) {
                             $user = Auth::user();
-                            
+
                             if ($record->sender_id === $user->id && $record->sender_hidden_at) {
                                 $record->update([
                                     'sender_hidden_at' => null,
@@ -601,14 +605,14 @@ class MessageResource extends Resource
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
                             $user = Auth::user();
                             $reason = $data['reason'] ?? 'Arquivado em lote pelo usuário';
-                            
+
                             foreach ($records as $record) {
-                                if ($record->sender_id === $user->id && !$record->sender_hidden_at) {
+                                if ($record->sender_id === $user->id && ! $record->sender_hidden_at) {
                                     $record->update([
                                         'sender_hidden_at' => now(),
                                         'sender_hidden_reason' => $reason,
                                     ]);
-                                } elseif ($record->recipient_id === $user->id && !$record->recipient_hidden_at) {
+                                } elseif ($record->recipient_id === $user->id && ! $record->recipient_hidden_at) {
                                     $record->update([
                                         'recipient_hidden_at' => now(),
                                         'recipient_hidden_reason' => $reason,
@@ -624,7 +628,7 @@ class MessageResource extends Resource
                         ->color('success')
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
                             $user = Auth::user();
-                            
+
                             foreach ($records as $record) {
                                 if ($record->sender_id === $user->id && $record->sender_hidden_at) {
                                     $record->update([

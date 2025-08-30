@@ -1,21 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alessandronuunes\FilamentCommunicate\Models;
 
-use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Alessandronuunes\FilamentCommunicate\Enums\TagRating;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Alessandronuunes\FilamentCommunicate\Observers\TagObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 #[ObservedBy([TagObserver::class])]
 class Tag extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     /**
      * Campos que podem ser preenchidos em massa.

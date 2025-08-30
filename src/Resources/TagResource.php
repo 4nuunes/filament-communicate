@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace Alessandronuunes\FilamentCommunicate\Resources;
 
+use Alessandronuunes\FilamentCommunicate\Enums\TagRating;
+use Alessandronuunes\FilamentCommunicate\Models\Tag;
+use Alessandronuunes\FilamentCommunicate\Resources\TagResource\Pages;
+use Awcodes\Palette\Forms\Components\ColorPickerSelect;
 use Filament\Forms;
-use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use Filament\Support\Colors\Color;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use TomatoPHP\FilamentIcons\Components\IconPicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Alessandronuunes\FilamentCommunicate\Models\Tag;
-use Awcodes\Palette\Forms\Components\ColorPickerSelect;
-use Alessandronuunes\FilamentCommunicate\Enums\TagRating;
-use Alessandronuunes\FilamentCommunicate\Resources\TagResource\Pages;
+use Illuminate\Support\Arr;
+use TomatoPHP\FilamentIcons\Components\IconPicker;
 
 class TagResource extends Resource
 {
@@ -120,7 +119,7 @@ class TagResource extends Resource
                             ->required()
                             ->default(TagRating::NORMAL->value)
                             ->columnSpanFull(),
-                        
+
                         Forms\Components\Checkbox::make('is_active')
                             ->label(__('filament-communicate::default.forms.tag.fields.is_active.label'))
                             ->default(true)
@@ -157,7 +156,6 @@ class TagResource extends Resource
                     ->label(__('filament-communicate::default.tables.columns.rating'))
                     ->badge()
                     ->sortable(),
-
 
                 Tables\Columns\TextColumn::make('description')
                     ->label(__('filament-communicate::default.tables.columns.description'))

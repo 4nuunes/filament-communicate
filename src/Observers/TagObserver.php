@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Alessandronuunes\FilamentCommunicate\Observers;
 
-use Illuminate\Support\Str;
 use Alessandronuunes\FilamentCommunicate\Models\Tag;
+use Illuminate\Support\Str;
 
 class TagObserver
 {
@@ -35,7 +37,7 @@ class TagObserver
     public function saving(Tag $tag): void
     {
         // Garante que sempre haverá um slug válido
-        if (empty($tag->slug) && !empty($tag->name)) {
+        if (empty($tag->slug) && ! empty($tag->name)) {
             $tag->slug = Str::slug($tag->name);
         }
     }
